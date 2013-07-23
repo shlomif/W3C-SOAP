@@ -2805,6 +2805,67 @@ sub xsd_modules {
     return ( sort keys %modules );
 }
 
+package My::W3C::SOAP::WSDL::Meta::Method;
+
+# Created on: 2012-07-15 19:45:13
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp;
+use Scalar::Util;
+use List::Util;
+#use List::MoreUtils;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+
+extends 'Moose::Meta::Method';
+
+our $VERSION     = version->new('0.02');
+
+has wsdl_operation => (
+    is        => 'rw',
+    isa       => 'Str',
+    required  => 1,
+    predicate => 'has_wsdl_operation',
+);
+has in_class => (
+    is        => 'rw',
+    isa       => 'Str',
+    predicate => 'has_in_class',
+);
+has in_attribute => (
+    is        => 'rw',
+    isa       => 'Str',
+    default   => 0,
+    predicate => 'has_in_attribute',
+);
+has out_class => (
+    is        => 'rw',
+    isa       => 'Str',
+    default   => 1,
+    predicate => 'has_out_class',
+);
+has out_attribute => (
+    is        => 'rw',
+    isa       => 'Str',
+    predicate => 'has_out_attribute',
+);
+has faults => (
+    is        => 'rw',
+    isa       => 'ArrayRef[HashRef]',
+    predicate => 'has_faults',
+);
+has security => (
+    is        => 'rw',
+    isa       => 'Str',
+    predicate => 'has_security',
+);
+
 package My::W3C::SOAP::WSDL::Parser;
 
 # Created on: 2012-05-27 18:58:29
@@ -2818,7 +2879,6 @@ use warnings;
 use version;
 #use List::MoreUtils;
 use Path::Class;
-use W3C::SOAP::WSDL::Meta::Method;
 use File::ShareDir qw/dist_dir/;
 
 extends 'My::W3C::SOAP::Parser';
@@ -2945,7 +3005,7 @@ sub dynamic_classes {
                     @{ $operation->port_type->faults }
                 };
 
-                $method{ $operation->perl_name } = W3C::SOAP::WSDL::Meta::Method->wrap(
+                $method{ $operation->perl_name } = My::W3C::SOAP::WSDL::Meta::Method->wrap(
                     body           => sub { shift->_request($operation->perl_name => @_) },
                     package_name   => $class_name,
                     name           => $operation->perl_name,
