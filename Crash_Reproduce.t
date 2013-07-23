@@ -7,6 +7,55 @@ use Test::More;
 use File::ShareDir qw/dist_dir/;
 use Template;
 
+package MyW3C::Parser;
+
+# Created on: 2012-05-27 18:58:29
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+our $VERSION     = version->new('0.02');
+
+has document => (
+    is       => 'rw',
+    isa      => 'W3C::SOAP::Document',
+);
+has template => (
+    is        => 'rw',
+    isa       => 'Template',
+    predicate => 'has_template',
+);
+has lib => (
+    is        => 'rw',
+    isa       => 'Str',
+    predicate => 'has_lib',
+);
+
+around BUILDARGS => sub {
+    my ($orig, $class, @args) = @_;
+    my $args
+        = !@args     ? {}
+        : @args == 1 ? $args[0]
+        :              {@args};
+
+    my $type = $class;
+    $type =~ s/Parser/Document/;
+
+    for my $arg ( keys %$args ) {
+        if ( $arg eq 'location' || $arg eq 'string' ) {
+            $args->{document} = $type->new($args);
+        }
+    }
+
+    return $class->$orig($args);
+};
+
+1;
+
 package W3C::SOAP::WSDL::Parser;
 
 # Created on: 2012-05-27 18:58:29
@@ -22,7 +71,6 @@ use Carp;
 use Scalar::Util;
 use List::Util;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 use Path::Class;
 use W3C::SOAP::Utils qw/ns2module/;
@@ -31,7 +79,7 @@ use W3C::SOAP::WSDL::Document;
 use W3C::SOAP::WSDL::Meta::Method;
 use File::ShareDir qw/dist_dir/;
 
-extends 'W3C::SOAP::Parser';
+extends 'MyW3C::Parser';
 
 our $VERSION     = version->new('0.02');
 
