@@ -2402,7 +2402,7 @@ our $VERSION     = version->new('0.02');
 
 has binding => (
     is         => 'rw',
-    isa        => 'W3C::SOAP::WSDL::Document::Binding',
+    isa        => 'My::W3C::SOAP::WSDL::Document::Binding',
     builder    => '_binding',
     lazy_build => 1,
     weak_ref   => 1,
