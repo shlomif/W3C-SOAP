@@ -170,8 +170,6 @@ sub _xpc {
     $xpc->registerNs(xs   => 'http://www.w3.org/2001/XMLSchema');
     $xpc->registerNs(xsd  => 'http://www.w3.org/2001/XMLSchema');
     $xpc->registerNs(wsdl => 'http://schemas.xmlsoap.org/wsdl/');
-    $xpc->registerNs(wsp  => 'http://schemas.xmlsoap.org/ws/2004/09/policy');
-    $xpc->registerNs(wssp => 'http://www.bea.com/wls90/security/policy');
     $xpc->registerNs(soap => 'http://schemas.xmlsoap.org/wsdl/soap/');
 
     return $xpc;
@@ -2137,12 +2135,6 @@ has message => (
     builder    => '_message',
     lazy_build => 1,
 );
-has policy => (
-    is         => 'rw',
-    isa        => 'Maybe[Str]',
-    builder    => '_policy',
-    lazy_build => 1,
-);
 has body => (
     is         => 'rw',
     isa        => 'Maybe[Str]',
@@ -2609,13 +2601,6 @@ has policies => (
     lazy_build => 1,
     weak_ref   => 1,
 );
-has policy => (
-    is         => 'rw',
-    isa        => 'HashRef[My::W3C::SOAP::WSDL::Document::Policy]',
-    builder    => '_policy',
-    lazy_build => 1,
-    weak_ref   => 1,
-);
 has schemas => (
     is         => 'rw',
     isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document]',
@@ -2743,16 +2728,6 @@ sub _policies {
     }
 
     return \@policies;
-}
-
-sub _policy {
-    my ($self) = @_;
-    my %service;
-    for my $service ( @{ $self->service }) {
-        $service{$service->sec_id} = $service;
-    }
-
-    return \%service;
 }
 
 sub _schemas {
