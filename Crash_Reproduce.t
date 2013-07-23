@@ -7,6 +7,30 @@ use Test::More;
 use File::ShareDir qw/dist_dir/;
 use Template;
 
+package MyW3C::Utils;
+
+use URI;
+
+sub ns2module {
+    my ($ns) = @_;
+
+    my $uri = URI->new($ns);
+
+    # URI's which have a host an a path are converted Java style name spacing
+    if ( $uri->can('host') && $uri->can('path') ) {
+        my $module = join '::', reverse map {ucfirst $_} map {lc $_} map {s/\W/_/g; $_} split /[.]/, $uri->host; ## no critic
+        $module .= join '::', map {s/\W/_/g; $_} split m{/}, $uri->path; ## no critic
+        return $module;
+    }
+
+    # other URI's are just made safe as a perl module name.
+    $ns =~ s{://}{::};
+    $ns =~ s{([^:]:)([^:])}{$1:$2}g;
+    $ns =~ s{[^\w:]+}{_}g;
+
+    return $ns;
+}
+
 package MyW3C::Parser;
 
 # Created on: 2012-05-27 18:58:29
@@ -73,7 +97,6 @@ use List::Util;
 #use List::MoreUtils;
 use English qw/ -no_match_vars /;
 use Path::Class;
-use W3C::SOAP::Utils qw/ns2module/;
 use W3C::SOAP::XSD::Parser;
 use W3C::SOAP::WSDL::Document;
 use W3C::SOAP::WSDL::Meta::Method;
@@ -186,7 +209,7 @@ sub dynamic_classes {
     my ($self) = @_;
     my @classes = $self->get_xsd->dynamic_classes;
 
-    my $class_name = "Dynamic::WSDL::" . ns2module($self->document->target_namespace);
+    my $class_name = "Dynamic::WSDL::" . MyW3C::Utils::ns2module($self->document->target_namespace);
 
     my $wsdl = $self->document;
     my %method;
