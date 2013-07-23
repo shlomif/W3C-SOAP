@@ -39,6 +39,91 @@ sub ns2module {
     return $ns;
 }
 
+package My::W3C::SOAP::Document::Node;
+
+# Created on: 2012-05-26 19:04:19
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp;
+use Scalar::Util;
+use List::Util;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+
+our $VERSION    = version->new('0.02');
+$ENV{W3C_SOAP_NAME_STYLE} ||= 'perl';
+
+has node => (
+    is       => 'rw',
+    isa      => 'XML::LibXML::Node',
+    required => 1,
+);
+has parent_node => (
+    is        => 'rw',
+    isa       => 'Maybe[My::W3C::SOAP::Document::Node]',
+    predicate => 'has_parent_node',
+    weak_ref  => 1,
+);
+has document => (
+    is         => 'rw',
+    isa        => 'W3C::SOAP::Document',
+    required   => 1,
+    builder    => '_document',
+    lazy_build => 1,
+    weak_ref   => 1,
+    handles    => {
+        xpc => 'xpc',
+    },
+);
+has name => (
+    is         => 'rw',
+    isa        => 'Maybe[Str]',
+    predicate  => 'has_name',
+    builder    => '_name',
+    lazy_build => 1,
+);
+
+around BUILDARGS => sub {
+    my ($orig, $class, @args) = @_;
+    my $args
+        = !@args     ? {}
+        : @args == 1 ? $args[0]
+        :              {@args};
+
+    confess "If document is not specified parent_node must be defined!\n"
+        if !$args->{document} && !$args->{parent_node};
+
+    return $class->$orig($args);
+};
+
+sub _document {
+    my ($self) = shift;
+    confess "Lazybuild $self has both no parent_node nore document!\n" if !$self->has_parent_node || !defined $self->parent_node;
+    return $self->parent_node->isa('W3C::SOAP::Document') ? $self->parent_node : $self->parent_node->document;
+}
+
+sub _name {
+    my ($self) = shift;
+    return $self->node->getAttribute('name');
+}
+
+sub perl_name {
+    my ($self) = @_;
+    my $name = $self->name;
+    return if !$name;
+
+    return $name if $ENV{W3C_SOAP_NAME_STYLE} eq 'original';
+
+    $name =~ s/ (?<= [^A-Z_] ) ([A-Z]) /_$1/gxms;
+    return lc $name;
+}
+
 package My::W3C::SOAP::XSD::Document::Node;
 
 # Created on: 2012-05-26 19:04:19
@@ -52,7 +137,7 @@ use warnings;
 use version;
 use English qw/ -no_match_vars /;
 
-extends 'W3C::SOAP::Document::Node';
+extends 'My::W3C::SOAP::Document::Node';
 
 our $VERSION     = version->new('0.02');
 
@@ -1834,7 +1919,7 @@ use List::Util;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 use W3C::SOAP::Utils qw/split_ns/;
-extends 'W3C::SOAP::Document::Node';
+extends 'My::W3C::SOAP::Document::Node';
 
 our $VERSION     = version->new('0.02');
 
@@ -1884,7 +1969,7 @@ use List::Util;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 
-extends 'W3C::SOAP::Document::Node';
+extends 'My::W3C::SOAP::Document::Node';
 
 our $VERSION     = version->new('0.02');
 
@@ -1986,7 +2071,7 @@ use List::Util;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 
-extends 'W3C::SOAP::Document::Node';
+extends 'My::W3C::SOAP::Document::Node';
 
 our $VERSION     = version->new('0.02');
 
@@ -2059,7 +2144,7 @@ use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 use W3C::SOAP::Utils qw/split_ns xml_error cmp_ns/;
 
-extends 'W3C::SOAP::Document::Node';
+extends 'My::W3C::SOAP::Document::Node';
 
 our $VERSION     = version->new('0.02');
 
@@ -2129,7 +2214,7 @@ use List::Util;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 
-extends 'W3C::SOAP::Document::Node';
+extends 'My::W3C::SOAP::Document::Node';
 
 our $VERSION     = version->new('0.02');
 
@@ -2174,7 +2259,7 @@ use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 use W3C::SOAP::WSDL::Document::Port;
 
-extends 'W3C::SOAP::Document::Node';
+extends 'My::W3C::SOAP::Document::Node';
 
 our $VERSION     = version->new('0.02');
 
