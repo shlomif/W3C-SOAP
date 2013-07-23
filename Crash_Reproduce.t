@@ -1896,6 +1896,97 @@ sub _type {
     return $type;
 }
 
+package My::W3C::SOAP::WSDL::Document::PortType;
+
+# Created on: 2012-05-27 19:25:22
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp;
+use Scalar::Util;
+use List::Util;
+#use List::MoreUtils;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+
+extends 'W3C::SOAP::Document::Node';
+
+our $VERSION     = version->new('0.02');
+
+has operations => (
+    is         => 'rw',
+    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::Operation]',
+    builder    => '_operations',
+    lazy_build => 1,
+);
+
+sub _operations {
+    my ($self) = @_;
+    my @operations;
+    my @nodes = $self->document->xpc->findnodes('wsdl:operation', $self->node);
+
+    for my $node (@nodes) {
+        push @operations, W3C::SOAP::WSDL::Document::Operation->new(
+            parent_node   => $self,
+            node     => $node,
+        );
+    }
+
+    return \@operations;
+}
+
+package My::W3C::SOAP::WSDL::Document::Service;
+
+# Created on: 2012-05-27 19:25:41
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp;
+use Scalar::Util;
+use List::Util;
+#use List::MoreUtils;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+use W3C::SOAP::WSDL::Document::Port;
+
+extends 'W3C::SOAP::Document::Node';
+
+our $VERSION     = version->new('0.02');
+
+has ports => (
+    is         => 'rw',
+    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::Port]',
+    builder    => '_ports',
+    lazy_build => 1,
+);
+
+sub _ports {
+    my ($self) = @_;
+    my @complex_types;
+    my @nodes = $self->document->xpc->findnodes('wsdl:port', $self->node);
+
+    for my $node (@nodes) {
+        push @complex_types, W3C::SOAP::WSDL::Document::Port->new(
+            parent_node   => $self,
+            node     => $node,
+        );
+    }
+
+    return \@complex_types;
+}
+
+1;
+
 package My::W3C::SOAP::WSDL::Document;
 
 # Created on: 2012-05-27 18:57:29
@@ -1915,8 +2006,6 @@ use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 use Path::Class;
 use XML::LibXML;
-use W3C::SOAP::WSDL::Document::PortType;
-use W3C::SOAP::WSDL::Document::Service;
 
 extends 'W3C::SOAP::Document';
 
@@ -1937,13 +2026,13 @@ has message => (
 );
 has port_types => (
     is         => 'rw',
-    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::PortType]',
+    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::PortType]',
     builder    => '_port_types',
     lazy_build => 1,
 );
 has port_type => (
     is         => 'rw',
-    isa        => 'HashRef[W3C::SOAP::WSDL::Document::PortType]',
+    isa        => 'HashRef[My::W3C::SOAP::WSDL::Document::PortType]',
     builder    => '_port_type',
     lazy_build => 1,
     weak_ref   => 1,
@@ -1963,13 +2052,13 @@ has binding => (
 );
 has services => (
     is         => 'rw',
-    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::Service]',
+    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::Service]',
     builder    => '_services',
     lazy_build => 1,
 );
 has service => (
     is         => 'rw',
-    isa        => 'HashRef[W3C::SOAP::WSDL::Document::Service]',
+    isa        => 'HashRef[My::W3C::SOAP::WSDL::Document::Service]',
     builder    => '_service',
     lazy_build => 1,
     weak_ref   => 1,
@@ -2033,7 +2122,7 @@ sub _port_types {
     my @nodes = $self->xpc->findnodes('//wsdl:portType');
 
     for my $node (@nodes) {
-        push @port_types, W3C::SOAP::WSDL::Document::PortType->new(
+        push @port_types, My::W3C::SOAP::WSDL::Document::PortType->new(
             document => $self,
             node   => $node,
         );
@@ -2083,7 +2172,7 @@ sub _services {
     my @nodes = $self->xpc->findnodes('//wsdl:service');
 
     for my $node (@nodes) {
-        push @services, W3C::SOAP::WSDL::Document::Service->new(
+        push @services, My::W3C::SOAP::WSDL::Document::Service->new(
             document => $self,
             node   => $node,
         );
