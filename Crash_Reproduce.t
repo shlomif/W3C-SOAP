@@ -1752,6 +1752,109 @@ sub element_attributes {
     return;
 }
 
+package My::W3C::SOAP::WSDL::Document::Operation;
+
+# Created on: 2012-05-28 07:03:06
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp;
+use Scalar::Util;
+use List::Util;
+#use List::MoreUtils;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+use W3C::SOAP::WSDL::Document::InOutPuts;
+
+extends 'W3C::SOAP::Document::Node';
+
+our $VERSION     = version->new('0.02');
+
+has style => (
+    is         => 'rw',
+    isa        => 'Str',
+    builder    => '_style',
+    lazy_build => 1,
+);
+has action => (
+    is         => 'rw',
+    isa        => 'Str',
+    builder    => '_action',
+    lazy_build => 1,
+);
+has inputs => (
+    is         => 'rw',
+    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::InOutPuts]',
+    builder    => '_inputs',
+    lazy_build => 1,
+);
+has outputs => (
+    is         => 'rw',
+    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::InOutPuts]',
+    builder    => '_outputs',
+    lazy_build => 1,
+);
+has faults => (
+    is         => 'rw',
+    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::InOutPuts]',
+    builder    => '_faults',
+    lazy_build => 1,
+);
+has port_type => (
+    is         => 'rw',
+    isa        => 'My::W3C::SOAP::WSDL::Document::Operation',
+    builder    => '_port_type',
+    lazy_build => 1,
+);
+
+sub _style {
+    my ($self) = @_;
+    my $style = $self->node->getAttribute('style');
+    return $style if $style;
+    my ($child) = $self->document->xpc->findnode('soap:binding'. $self->node);
+    return $child->getAttribute('style');
+}
+
+sub _action {
+    my ($self) = @_;
+    my $action = $self->node->getAttribute('soapAction');
+    return $action if $action;
+    my ($child) = $self->document->xpc->findnode('soap:binding'. $self->node);
+    return $child->getAttribute('soapAction');
+}
+
+sub _inputs  { return $_[0]->_in_out_puts('input');  }
+sub _outputs { return $_[0]->_in_out_puts('output'); }
+sub _faults  { return $_[0]->_in_out_puts('fault');  }
+sub _in_out_puts {
+    my ($self, $dir) = @_;
+    my @puts;
+    my @nodes = $self->document->xpc->findnodes("wsdl:$dir", $self->node);
+
+    for my $node (@nodes) {
+        push @puts, W3C::SOAP::WSDL::Document::InOutPuts->new(
+            parent_node => $self,
+            node        => $node,
+        );
+    }
+
+    return \@puts;
+}
+
+sub _port_type {
+    my ($self) = @_;
+    for my $port_type (@{ $self->document->port_types }) {
+        for my $operation (@{ $port_type->operations }) {
+            return $operation if $operation->name eq $self->name;
+        }
+    }
+}
+
 package My::W3C::SOAP::WSDL::Document::Binding;
 
 # Created on: 2012-05-27 19:25:33
@@ -1769,7 +1872,6 @@ use List::Util;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
-use W3C::SOAP::WSDL::Document::Operation;
 
 extends 'W3C::SOAP::Document::Node';
 
@@ -1789,7 +1891,7 @@ has transport => (
 );
 has operations => (
     is         => 'rw',
-    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::Operation]',
+    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::Operation]',
     builder    => '_operations',
     lazy_build => 1,
 );
@@ -1816,7 +1918,7 @@ sub _operations {
     my @nodes = $self->document->xpc->findnodes('wsdl:operation', $self->node);
 
     for my $node (@nodes) {
-        push @operations, W3C::SOAP::WSDL::Document::Operation->new(
+        push @operations, My::W3C::SOAP::WSDL::Document::Operation->new(
             parent_node   => $self,
             node     => $node,
         );
@@ -1920,7 +2022,7 @@ our $VERSION     = version->new('0.02');
 
 has operations => (
     is         => 'rw',
-    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::Operation]',
+    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::Operation]',
     builder    => '_operations',
     lazy_build => 1,
 );
@@ -1931,7 +2033,7 @@ sub _operations {
     my @nodes = $self->document->xpc->findnodes('wsdl:operation', $self->node);
 
     for my $node (@nodes) {
-        push @operations, W3C::SOAP::WSDL::Document::Operation->new(
+        push @operations, My::W3C::SOAP::WSDL::Document::Operation->new(
             parent_node   => $self,
             node     => $node,
         );
