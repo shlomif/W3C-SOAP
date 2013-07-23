@@ -3028,7 +3028,7 @@ package main;
 
 # set up templates
 my $template = Template->new(
-    INCLUDE_PATH => dist_dir('W3C-SOAP').':./templates',
+    INCLUDE_PATH => './templates',
     INTERPOLATE  => 0,
     EVAL_PERL    => 1,
 );
