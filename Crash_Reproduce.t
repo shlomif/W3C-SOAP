@@ -2502,22 +2502,11 @@ use Carp;
 extends 'My::W3C::SOAP::Document::Node';
 
 
-has sec_id => (
-    is      => 'rw',
-    isa     => 'Str',
-    builder => '_sec_id',
-);
 has policy_type => (
     is      => 'rw',
     isa     => 'Str',
     builder => '_policy_type',
 );
-
-sub _sec_id {
-    my ($self) = @_;
-    my @attributes = $self->node->getAttributes();
-
-}
 
 sub _policy_type {
     my ($self) = @_;
