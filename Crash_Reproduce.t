@@ -305,6 +305,128 @@ sub has_anonymous {
     return 'xs:string';
 }
 
+package MyW3C::XSD::Document::SimpleType;
+
+# Created on: 2012-05-26 19:04:19
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp;
+use Scalar::Util;
+use List::Util;
+#use List::MoreUtils;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+use W3C::SOAP::Utils qw/split_ns/;
+
+extends 'W3C::SOAP::XSD::Document::Type';
+
+our $VERSION     = version->new('0.02');
+
+has type => (
+    is         => 'rw',
+    isa        => 'Str',
+    builder    => '_type',
+    lazy_build => 1,
+);
+has enumeration => (
+    is         => 'rw',
+    isa        => 'ArrayRef[Str]',
+    builder    => '_enumeration',
+    lazy_build => 1,
+);
+has pattern => (
+    is         => 'rw',
+    isa        => 'Maybe[Str]',
+    builder    => '_pattern',
+    predicate  => 'has_pattern',
+    lazy_build => 1,
+);
+has maxLength => (
+    is         => 'rw',
+    isa        => 'Maybe[Int]',
+    builder    => '_minLength',
+    predicate  => 'has_minLength',
+    lazy_build => 1,
+);
+has minLength => (
+    is         => 'rw',
+    isa        => 'Maybe[Int]',
+    builder    => '_maxLength',
+    predicate  => 'has_maxLength',
+    lazy_build => 1,
+);
+has length => (
+    is         => 'rw',
+    isa        => 'Maybe[Int]',
+    builder    => '_length',
+    predicate  => 'has_length',
+    lazy_build => 1,
+);
+
+sub _type {
+    my ($self) = @_;
+    my ($restriction) = $self->document->xpc->findnodes('xsd:restriction', $self->node);
+
+    return $restriction->getAttribute('base');
+}
+
+sub _enumeration {
+    my ($self) = @_;
+    my @nodes = $self->document->xpc->findnodes('xsd:restriction/xsd:enumeration', $self->node);
+    my @enumeration;
+
+    for my $node (@nodes) {
+        push @enumeration, $node->getAttribute('value');
+    }
+
+    return \@enumeration;
+}
+
+sub _pattern   { return shift->_build_restriction('pattern')   }
+sub _maxLength { return shift->_build_restriction('maxLength') }
+sub _minLength { return shift->_build_restriction('minLength') }
+sub _length    { return shift->_build_restriction('length')    }
+sub _build_restriction {
+    my ($self, $type) = @_;
+    my ($node) = $self->document->xpc->findnodes("xsd:restriction/xsd:$type", $self->node);
+    return $node->getAttribute('value');
+}
+
+sub moose_type {
+    my ($self) = @_;
+
+    warn "No name for ".$self->node->toString if !$self->name;
+    my $type = $self->document->module . ':' . $self->name;
+
+    return $type;
+}
+
+sub moose_base_type {
+    my ($self) = @_;
+    my ($ns, $type) = split_ns($self->type);
+    $ns ||= $self->document->target_namespace;
+    return "xs:$type" if $self->document->ns_map->{$ns} && $self->document->ns_map->{$ns} eq 'http://www.w3.org/2001/XMLSchema';
+
+    my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
+
+    return "xs:$type" if $ns_uri eq 'http://www.w3.org/2001/XMLSchema';
+
+    return $type;
+}
+
+sub moosex_type {
+    my ($self) = @_;
+
+    warn "No name for ".$self->node->toString if !$self->name;
+    return $self->name;
+}
+
 package MyW3C::XSD::Document::ComplexType;
 
 # Created on: 2012-05-26 19:04:25
@@ -436,7 +558,6 @@ use XML::LibXML;
 use WWW::Mechanize;
 use TryCatch;
 use URI;
-use W3C::SOAP::XSD::Document::SimpleType;
 use W3C::SOAP::Utils qw/normalise_ns/;
 
 extends 'W3C::SOAP::Document';
@@ -469,13 +590,13 @@ has include => (
 );
 has simple_types => (
     is         => 'rw',
-    isa        => 'ArrayRef[W3C::SOAP::XSD::Document::SimpleType]',
+    isa        => 'ArrayRef[MyW3C::XSD::Document::SimpleType]',
     builder    => '_simple_types',
     lazy_build => 1,
 );
 has simple_type => (
     is         => 'rw',
-    isa        => 'HashRef[W3C::SOAP::XSD::Document::SimpleType]',
+    isa        => 'HashRef[MyW3C::XSD::Document::SimpleType]',
     builder    => '_simple_type',
     lazy_build => 0,
 );
@@ -631,7 +752,7 @@ sub _simple_types {
     my @nodes = $self->xpc->findnodes('//xsd:simpleType');
 
     for my $node (@nodes) {
-        push @simple_types, W3C::SOAP::XSD::Document::SimpleType->new(
+        push @simple_types, MyW3C::XSD::Document::SimpleType->new(
             document => $self,
             node   => $node,
         );
