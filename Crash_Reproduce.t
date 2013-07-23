@@ -39,6 +39,272 @@ sub ns2module {
     return $ns;
 }
 
+package MyW3C::XSD::Document::Element;
+
+# Created on: 2012-05-26 19:04:09
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp;
+use Scalar::Util;
+use List::Util;
+#use List::MoreUtils;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+use W3C::SOAP::Utils qw/split_ns xml_error/;
+
+extends 'W3C::SOAP::XSD::Document::Type';
+
+our $VERSION     = version->new('0.02');
+
+has complex_type => (
+    is     => 'rw',
+    isa    => 'Str',
+    builder => '_complex_type',
+    lazy_build => 1,
+);
+has type => (
+    is     => 'rw',
+    isa    => 'Str',
+    builder => '_type',
+    lazy_build => 1,
+    predicate  => 'has_type',
+);
+has package => (
+    is     => 'rw',
+    isa    => 'Str',
+    builder => '_package',
+    lazy_build => 1,
+);
+has max_occurs => (
+    is     => 'rw',
+    #isa    => 'Str',
+    builder => '_max_occurs',
+    lazy_build => 1,
+);
+has min_occurs => (
+    is     => 'rw',
+    #isa    => 'Str',
+    builder => '_min_occurs',
+    lazy_build => 1,
+);
+has nillable => (
+    is     => 'rw',
+    isa    => 'Bool',
+    builder => '_nillable',
+    lazy_build => 1,
+);
+has choice_group => (
+    is     => 'rw',
+    isa    => 'Int',
+);
+
+sub _complex_type {
+    my ($self) = @_;
+    my $complex;
+    my @nodes = $self->document->xpc->findnodes('xsd:complexType', $self->node);
+
+    for my $node (@nodes) {
+    }
+
+    return $complex;
+}
+
+sub _type {
+    my ($self) = @_;
+    my $type = $self->node->getAttribute('type');
+    return $type if $type;
+
+    my $simple = $self->document->simple_type;
+    TYPE:
+    for my $type (keys %{$simple}) {
+        my $node = $simple->{$type}->node;
+        my  $type_name = $node->parentNode->getAttribute('name');
+        if ( $type_name && $self->name && $type_name eq $self->name ) {
+            my @children = $self->document->xpc->findnodes('xsd:restriction', $node);
+            last if @children != 1;
+
+            my $child = $children[0]->firstChild;
+            while ($child) {
+                last TYPE if $child->nodeName !~ /^#/;
+                $child = $child->nextSibling;
+            }
+
+            return $children[0]->getAttribute('base');
+        }
+        $type_name ||= '';
+    }
+
+    return $self->has_anonymous;
+}
+
+sub _package {
+    my ($self) = @_;
+    my $type = $self->type;
+    my ($ns, $name) = split_ns($type);
+    $ns ||= $self->document->ns_name;
+    my $ns_uri = $name ? $self->document->get_ns_uri($ns, $self->node) : '';
+    $name ||= $ns;
+
+    if ( $ns_uri eq 'http://www.w3.org/2001/XMLSchema' ) {
+        return "xs:$name";
+    }
+
+    my $base = $self->document->get_module_base( $ns_uri || $self->document->target_namespace );
+
+    return $base . '::' . $name;
+}
+
+sub _max_occurs {
+    my ($self) = @_;
+    return $self->node->getAttribute('maxOccurs') || 1;
+}
+
+sub _min_occurs {
+    my ($self) = @_;
+    return $self->node->getAttribute('minOccurs') || 0;
+}
+
+sub _nillable {
+    my ($self) = @_;
+    my $nillable = $self->node->getAttribute('nillable');
+
+    return !$nillable          ? 1
+        : $nillable eq 'true'  ? 1
+        : $nillable eq 'false' ? 0
+        :                        die "Unknown value for attribute nillable in ".$self->node->toString;
+}
+
+sub module {
+    my ($self) = @_;
+
+    return $self->document->module;
+}
+
+sub type_module {
+    my ($self) = @_;
+    my ($ns, $type) = split_ns($self->type);
+    $ns ||= $self->document->ns_name;
+    my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
+
+    return $self->simple_type || $self->document->get_module_base( $ns_uri ) . '::' . $type;
+}
+
+sub simple_type {
+    my ($self) = @_;
+    $self->document->simple_type();
+    my ($ns, $type) = split_ns($self->type);
+    $ns ||= $self->document->ns_name;
+    return "xs:$type"
+        if $self->document->ns_map->{$ns}
+            && $self->document->ns_map->{$ns} eq 'http://www.w3.org/2001/XMLSchema';
+
+    my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
+    warn "Simple type missing a type for '".$self->type."'\n".xml_error($self->node)."\n"
+        if !$ns && $ns_uri ne 'http://www.w3.org/2001/XMLSchema';
+
+    return "xs:$type" if $ns_uri eq 'http://www.w3.org/2001/XMLSchema';
+
+    my @xsds = ($self->document);
+    while ( my $xsd = shift @xsds ) {
+        my $simple = $xsd->simple_type;
+        if ( !$simple && @{ $xsd->simple_types } ) {
+            $simple = $xsd->simple_type($xsd->_simple_type);
+            #warn $xsd->target_namespace . " $type => $simple\n" if $type eq 'GetCreateUIDResponseDto';
+        }
+
+        return $simple->{$type}->moose_type if $simple && $simple->{$type};
+
+        push @xsds, @{$xsd->imports};
+    }
+    return;
+}
+
+sub very_simple_type {
+    my ($self) = @_;
+    $self->document->simple_type();
+    my ($ns, $type) = split_ns($self->type);
+    $ns ||= $self->document->ns_name;
+    return "xs:$type" if $self->document->ns_map->{$ns} && $self->document->ns_map->{$ns} eq 'http://www.w3.org/2001/XMLSchema';
+
+    my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
+    warn "Simple type missing a type for '".$self->type."'\n".xml_error($self->node)."\n"
+        if !$ns && $ns_uri ne 'http://www.w3.org/2001/XMLSchema';
+
+    return "xs:$type" if $ns_uri eq 'http://www.w3.org/2001/XMLSchema';
+
+    my @xsds = ($self->document);
+    while ( my $xsd = shift @xsds ) {
+        my $simple = $xsd->simple_type;
+        if ( !$simple && @{ $xsd->simple_types } ) {
+            $simple = $xsd->simple_type($xsd->_simple_type);
+        }
+
+        return $simple->{$type}->type if $simple && $simple->{$type};
+
+        push @xsds, @{$xsd->imports};
+    }
+    return;
+}
+
+sub moosex_type {
+    my ($self) = @_;
+    my ($ns, $type) = split_ns($self->type);
+    $ns ||= $self->document->ns_name;
+    my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
+    warn "Simple type missing a type for '".$self->type."'\n".xml_error($self->node)."\n"
+        if !$ns && $ns_uri ne 'http://www.w3.org/2001/XMLSchema';
+
+    return "'xs:$type'" if $ns_uri eq 'http://www.w3.org/2001/XMLSchema';
+
+    my @xsds = ($self->document);
+    while ( my $xsd = shift @xsds ) {
+        my $simple = $xsd->simple_type;
+        if ( !$simple && @{ $xsd->simple_types } ) {
+            $simple = $xsd->simple_type($xsd->_simple_type);
+            #warn $xsd->target_namespace . " $type => $simple\n" if $type eq 'GetCreateUIDResponseDto';
+        }
+
+        return $simple->{$type}->moosex_type if $simple && $simple->{$type};
+
+        push @xsds, @{$xsd->imports};
+    }
+    return;
+}
+
+sub has_anonymous {
+    my ($self) = @_;
+    return if $self->has_type && $self->type;
+
+    my %map = reverse %{ $self->document->ns_map };
+
+    my $simple = $self->document->simple_type;
+    for my $type (keys %{$simple}) {
+        my  $type_name = $simple->{$type}->node->parentNode->getAttribute('name');
+        if ( $type_name && $self->name && $type_name eq $self->name ) {
+            return $map{$self->document->target_namespace} . ':' . $type;
+        }
+        $type_name ||= '';
+    }
+
+    my $complex = $self->document->complex_type;
+    for my $type (keys %{$complex}) {
+        my  $type_name = $complex->{$type}->node->parentNode->getAttribute('name');
+        if ( $type_name && $self->name && $type_name eq $self->name ) {
+            return $map{$self->document->target_namespace} . ':' . $type;
+        }
+        $type_name ||= '';
+    }
+
+    $self->document->ns_map->{xs} ||= 'http://www.w3.org/2001/XMLSchema';
+    return 'xs:string';
+}
+
 package MyW3C::XSD::Document;
 
 # Created on: 2012-05-26 15:46:31
@@ -60,7 +326,6 @@ use XML::LibXML;
 use WWW::Mechanize;
 use TryCatch;
 use URI;
-use W3C::SOAP::XSD::Document::Element;
 use W3C::SOAP::XSD::Document::ComplexType;
 use W3C::SOAP::XSD::Document::SimpleType;
 use W3C::SOAP::Utils qw/normalise_ns/;
@@ -133,13 +398,13 @@ has anon_complex_type_count => (
 );
 has elements => (
     is         => 'rw',
-    isa        => 'ArrayRef[W3C::SOAP::XSD::Document::Element]',
+    isa        => 'ArrayRef[MyW3C::XSD::Document::Element]',
     builder   => '_elements',
     lazy_build => 1,
 );
 has element => (
     is         => 'rw',
-    isa        => 'HashRef[W3C::SOAP::XSD::Document::Element]',
+    isa        => 'HashRef[MyW3C::XSD::Document::Element]',
     builder   => '_element',
     lazy_build => 1,
 );
@@ -361,7 +626,7 @@ sub _elements {
     my @nodes = $self->xpc->findnodes('/*/xsd:element');
 
     for my $node (@nodes) {
-        push @elements, W3C::SOAP::XSD::Document::Element->new(
+        push @elements, MyW3C::XSD::Document::Element->new(
             document => $self,
             node   => $node,
         );
