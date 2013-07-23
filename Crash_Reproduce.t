@@ -451,7 +451,7 @@ our $VERSION     = version->new('0.02');
 
 has sequence => (
     is      => 'rw',
-    isa     => 'ArrayRef[W3C::SOAP::XSD::Document::Element]',
+    isa     => 'ArrayRef[My::W3C::SOAP::XSD::Document::Element]',
     builder => '_sequence',
     lazy_build => 1,
 );
@@ -514,7 +514,7 @@ sub _get_sequence_elements {
 
     for my $node (@nodes) {
         if ( $node->nodeName =~ /(?:^|:)element$/ ) {
-            push @sequence, W3C::SOAP::XSD::Document::Element->new(
+            push @sequence, My::W3C::SOAP::XSD::Document::Element->new(
                 parent_node => $self,
                 node   => $node,
             );
@@ -522,7 +522,7 @@ sub _get_sequence_elements {
         elsif ( $node->nodeName =~ /(?:^|:)choice$/ ) {
             my @choices = $self->document->xpc->findnodes('xsd:element', $node);
             for my $choice (@choices) {
-                push @sequence, W3C::SOAP::XSD::Document::Element->new(
+                push @sequence, My::W3C::SOAP::XSD::Document::Element->new(
                     parent_node  => $self,
                     node         => $choice,
                     choice_group => $group,
@@ -1752,6 +1752,150 @@ sub element_attributes {
     return;
 }
 
+package My::W3C::SOAP::WSDL::Document::Binding;
+
+# Created on: 2012-05-27 19:25:33
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp;
+use Scalar::Util;
+use List::Util;
+#use List::MoreUtils;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+use W3C::SOAP::WSDL::Document::Operation;
+
+extends 'W3C::SOAP::Document::Node';
+
+our $VERSION     = version->new('0.02');
+
+has style => (
+    is         => 'rw',
+    isa        => 'Str',
+    builder    => '_style',
+    lazy_build => 1,
+);
+has transport => (
+    is         => 'rw',
+    isa        => 'Str',
+    builder    => '_transport',
+    lazy_build => 1,
+);
+has operations => (
+    is         => 'rw',
+    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::Operation]',
+    builder    => '_operations',
+    lazy_build => 1,
+);
+
+sub _style {
+    my ($self) = @_;
+    my $style = $self->node->getAttribute('style');
+    return $style if $style;
+    my ($child) = $self->document->xpc->findnode('soap:binding'. $self->node);
+    return $child->getAttribute('style');
+}
+
+sub _transport {
+    my ($self) = @_;
+    my $transport = $self->node->getAttribute('transport');
+    return $transport if $transport;
+    my ($child) = $self->document->xpc->findnode('soap:binding'. $self->node);
+    return $child->getAttribute('transport');
+}
+
+sub _operations {
+    my ($self) = @_;
+    my @operations;
+    my @nodes = $self->document->xpc->findnodes('wsdl:operation', $self->node);
+
+    for my $node (@nodes) {
+        push @operations, W3C::SOAP::WSDL::Document::Operation->new(
+            parent_node   => $self,
+            node     => $node,
+        );
+    }
+
+    return \@operations;
+}
+
+package My::W3C::SOAP::WSDL::Document::Message;
+
+# Created on: 2012-05-27 19:25:15
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp;
+use Scalar::Util;
+use List::Util;
+#use List::MoreUtils;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+use W3C::SOAP::Utils qw/split_ns xml_error cmp_ns/;
+
+extends 'W3C::SOAP::Document::Node';
+
+our $VERSION     = version->new('0.02');
+
+has element => (
+    is         => 'rw',
+    isa        => 'Maybe[My::W3C::SOAP::XSD::Document::Element]',
+    builder    => '_element',
+    lazy_build => 1,
+);
+has type => (
+    is         => 'rw',
+    isa        => 'Maybe[Str]',
+    builder    => '_type',
+    lazy_build => 1,
+);
+
+sub _element {
+    my ($self) = @_;
+    my ($part) = $self->document->xpc->findnodes("wsdl:part", $self->node);
+    return unless $part;
+    my $element = $part->getAttribute('element');
+    return unless $element;
+
+    my ($ns, $el_name) = split_ns($element);
+    my $nsuri = $self->document->get_nsuri($ns);
+    my @schemas = @{ $self->document->schemas };
+
+    for my $schema (@schemas) {
+        push @schemas, @{ $schema->imports };
+        push @schemas, @{ $schema->includes };
+
+        if ( cmp_ns($schema->target_namespace, $nsuri) ) {
+            for my $element (@{ $schema->elements }) {
+                return $element if $element->name eq $el_name;
+            }
+        }
+    }
+
+    return;
+}
+
+sub _type {
+    my ($self) = @_;
+    my ($part) = $self->document->xpc->findnodes("wsdl:part", $self->node);
+    return unless $part;
+    my $type = $part->getAttribute('type');
+    return unless $type;
+
+    return $type;
+}
+
 package My::W3C::SOAP::WSDL::Document;
 
 # Created on: 2012-05-27 18:57:29
@@ -1771,8 +1915,6 @@ use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 use Path::Class;
 use XML::LibXML;
-use W3C::SOAP::WSDL::Document::Binding;
-use W3C::SOAP::WSDL::Document::Message;
 use W3C::SOAP::WSDL::Document::PortType;
 use W3C::SOAP::WSDL::Document::Service;
 
@@ -1782,13 +1924,13 @@ our $VERSION     = version->new('0.02');
 
 has messages => (
     is         => 'rw',
-    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::Message]',
+    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::Message]',
     builder    => '_messages',
     lazy_build => 1,
 );
 has message => (
     is         => 'rw',
-    isa        => 'HashRef[W3C::SOAP::WSDL::Document::Message]',
+    isa        => 'HashRef[My::W3C::SOAP::WSDL::Document::Message]',
     builder    => '_message',
     lazy_build => 1,
     weak_ref   => 1,
@@ -1808,13 +1950,13 @@ has port_type => (
 );
 has bindings => (
     is         => 'rw',
-    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::Binding]',
+    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::Binding]',
     builder    => '_bindings',
     lazy_build => 1,
 );
 has binding => (
     is         => 'rw',
-    isa        => 'HashRef[W3C::SOAP::WSDL::Document::Binding]',
+    isa        => 'HashRef[My::W3C::SOAP::WSDL::Document::Binding]',
     builder    => '_binding',
     lazy_build => 1,
     weak_ref   => 1,
@@ -1866,7 +2008,7 @@ sub _messages {
     my @nodes = $self->xpc->findnodes('//wsdl:message');
 
     for my $node (@nodes) {
-        push @messages, W3C::SOAP::WSDL::Document::Message->new(
+        push @messages, My::W3C::SOAP::WSDL::Document::Message->new(
             document => $self,
             node   => $node,
         );
@@ -1916,7 +2058,7 @@ sub _bindings {
     my @nodes = $self->xpc->findnodes('//wsdl:binding');
 
     for my $node (@nodes) {
-        push @bindings, W3C::SOAP::WSDL::Document::Binding->new(
+        push @bindings, My::W3C::SOAP::WSDL::Document::Binding->new(
             document => $self,
             node   => $node,
         );
