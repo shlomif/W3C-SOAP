@@ -1752,6 +1752,56 @@ sub element_attributes {
     return;
 }
 
+package My::W3C::SOAP::WSDL::Document::InOutPuts;
+
+# Created on: 2012-05-28 07:30:02
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp;
+use Scalar::Util;
+use List::Util;
+#use List::MoreUtils;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+use W3C::SOAP::Utils qw/split_ns/;
+extends 'W3C::SOAP::Document::Node';
+
+our $VERSION     = version->new('0.02');
+
+has message => (
+    is         => 'rw',
+    isa        => 'Maybe[W3C::SOAP::WSDL::Document::Message]',
+    builder    => '_message',
+    lazy_build => 1,
+);
+has policy => (
+    is         => 'rw',
+    isa        => 'Maybe[Str]',
+    builder    => '_policy',
+    lazy_build => 1,
+);
+has body => (
+    is         => 'rw',
+    isa        => 'Maybe[Str]',
+    builder    => '_body',
+    lazy_build => 1,
+);
+
+sub _message {
+    my ($self) = @_;
+    my ($ns, $message) = split_ns($self->node->getAttribute('message'));
+
+    for my $msg (@{ $self->document->messages }) {
+        return $msg if $msg->name eq $message;
+    }
+}
+
 package My::W3C::SOAP::WSDL::Document::Operation;
 
 # Created on: 2012-05-28 07:03:06
@@ -1769,7 +1819,6 @@ use List::Util;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
-use W3C::SOAP::WSDL::Document::InOutPuts;
 
 extends 'W3C::SOAP::Document::Node';
 
@@ -1789,19 +1838,19 @@ has action => (
 );
 has inputs => (
     is         => 'rw',
-    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::InOutPuts]',
+    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::InOutPuts]',
     builder    => '_inputs',
     lazy_build => 1,
 );
 has outputs => (
     is         => 'rw',
-    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::InOutPuts]',
+    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::InOutPuts]',
     builder    => '_outputs',
     lazy_build => 1,
 );
 has faults => (
     is         => 'rw',
-    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::InOutPuts]',
+    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::InOutPuts]',
     builder    => '_faults',
     lazy_build => 1,
 );
@@ -1837,7 +1886,7 @@ sub _in_out_puts {
     my @nodes = $self->document->xpc->findnodes("wsdl:$dir", $self->node);
 
     for my $node (@nodes) {
-        push @puts, W3C::SOAP::WSDL::Document::InOutPuts->new(
+        push @puts, My::W3C::SOAP::WSDL::Document::InOutPuts->new(
             parent_node => $self,
             node        => $node,
         );
