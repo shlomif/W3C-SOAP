@@ -2077,7 +2077,7 @@ our $VERSION     = version->new('0.02');
 
 has message => (
     is         => 'rw',
-    isa        => 'Maybe[W3C::SOAP::WSDL::Document::Message]',
+    isa        => 'Maybe[My::W3C::SOAP::WSDL::Document::Message]',
     builder    => '_message',
     lazy_build => 1,
 );
