@@ -81,8 +81,6 @@ package My::W3C::SOAP::Document;
 
 use Moose;
 use Carp qw/carp croak cluck confess longmess/;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 use TryCatch;
 use URI;
 use XML::LibXML;
@@ -220,8 +218,6 @@ package My::W3C::SOAP::Document::Node;
 
 use Moose;
 use Carp;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 
 
 has node => (
@@ -296,7 +292,6 @@ package My::W3C::SOAP::XSD::Document::Node;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -316,8 +311,6 @@ package My::W3C::SOAP::XSD::Document::Type;
 use Moose;
 use Carp;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::XSD::Document::Node';
 
@@ -354,8 +347,6 @@ package My::W3C::SOAP::XSD::Document::Element;
 use Moose;
 use Carp;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::XSD::Document::Type';
 
@@ -614,8 +605,6 @@ package My::W3C::SOAP::XSD::Document::SimpleType;
 use Moose;
 use Carp;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::XSD::Document::Type';
 
@@ -730,8 +719,6 @@ package My::W3C::SOAP::XSD::Document::ComplexType;
 use Moose;
 use Carp;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::XSD::Document::Type';
 
@@ -835,8 +822,6 @@ package My::W3C::SOAP::XSD::Document;
 use Moose;
 use Carp qw/carp croak cluck confess longmess/;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 use Path::Class;
 use XML::LibXML;
 use WWW::Mechanize;
@@ -1076,10 +1061,6 @@ sub _complex_types {
             );
         }
         catch ($e) {
-            warn Dumper {
-                document => $self,
-                node     => $node,
-            };
             die $e;
         }
 
@@ -1102,11 +1083,6 @@ sub _complex_types {
             push @elements, @{ $complex_types[-1]->sequence };
         }
         catch ($e) {
-            warn Dumper {
-                parent_node => $element->node->toString,
-                document    => $self,
-                node        => $node,
-            };
             die $e;
         }
     }
@@ -1166,7 +1142,7 @@ sub _ns_name {
         $rev{$self->target_namespace} = $ns;
         $self->ns_map->{$ns} = $self->target_namespace;
     }
-    confess "No ns name\n".Dumper \%rev, $self->target_namespace if !$rev{$self->target_namespace};
+    confess "No ns name\n".$self->target_namespace if !$rev{$self->target_namespace};
     return $rev{$self->target_namespace};
 }
 
@@ -1214,7 +1190,7 @@ sub get_ns_uri {
         last if ref $node eq 'XML::LibXML::Document';
     }
 
-    confess "Couldn't find the namespace '$ns_name' to map\nMap has:\n", Dumper $self->ns_map if !$self->ns_map->{$ns_name};
+    confess "Couldn't find the namespace '$ns_name' to map\nMap has:\n", $self->ns_map if !$self->ns_map->{$ns_name};
 
     return $self->ns_map->{$ns_name};
 }
@@ -1283,8 +1259,6 @@ package My::W3C::SOAP::XSD::Types;
 
 use strict;
 use Carp;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 use DateTime::Format::Strptime;
 use MooseX::Types -declare
     => [qw/
@@ -1442,8 +1416,6 @@ package My::W3C::SOAP::XSD;
 use Moose;
 use Carp qw/carp croak cluck confess longmess/;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 use Moose::Util::TypeConstraints;
 use MooseX::Types::XMLSchema;
 My::W3C::SOAP::XSD::Types->import(':all');
@@ -2163,8 +2135,6 @@ package My::W3C::SOAP::WSDL::Document::InOutPuts;
 use Moose;
 use Carp;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 extends 'My::W3C::SOAP::Document::Node';
 
 
@@ -2207,8 +2177,6 @@ package My::W3C::SOAP::WSDL::Document::Operation;
 use Moose;
 use Carp;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2304,8 +2272,6 @@ package My::W3C::SOAP::WSDL::Document::Binding;
 use Moose;
 use Carp;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2371,8 +2337,6 @@ package My::W3C::SOAP::WSDL::Document::Message;
 use Moose;
 use Carp;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2436,8 +2400,6 @@ package My::W3C::SOAP::WSDL::Document::PortType;
 use Moose;
 use Carp;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2475,8 +2437,6 @@ package My::W3C::SOAP::WSDL::Document::Port;
 use Moose;
 use Carp;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2521,8 +2481,6 @@ package My::W3C::SOAP::WSDL::Document::Service;
 use Moose;
 use Carp;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2562,8 +2520,6 @@ package My::W3C::SOAP::WSDL::Document::Policy;
 use Moose;
 use Carp;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2603,8 +2559,6 @@ package My::W3C::SOAP::WSDL::Document;
 use Moose;
 use Carp;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 use Path::Class;
 use XML::LibXML;
 
@@ -2896,8 +2850,6 @@ package My::W3C::SOAP::WSDL::Meta::Method;
 use Moose;
 use Carp;
 #use List::MoreUtils;
-use Data::Dumper qw/Dumper/;
-use English qw/ -no_match_vars /;
 
 extends 'Moose::Meta::Method';
 
@@ -2955,7 +2907,6 @@ use Path::Class;
 use File::ShareDir qw/dist_dir/;
 
 extends 'My::W3C::SOAP::Parser';
-
 
 has '+document' => (
     isa      => 'My::W3C::SOAP::WSDL::Document',
