@@ -305,6 +305,117 @@ sub has_anonymous {
     return 'xs:string';
 }
 
+package MyW3C::XSD::Document::ComplexType;
+
+# Created on: 2012-05-26 19:04:25
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp;
+use Scalar::Util;
+use List::Util;
+#use List::MoreUtils;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+use W3C::SOAP::Utils qw/split_ns/;
+
+extends 'W3C::SOAP::XSD::Document::Type';
+
+our $VERSION     = version->new('0.02');
+
+has sequence => (
+    is      => 'rw',
+    isa     => 'ArrayRef[W3C::SOAP::XSD::Document::Element]',
+    builder => '_sequence',
+    lazy_build => 1,
+);
+has module => (
+    is        => 'rw',
+    isa       => 'Str',
+    builder   => '_module',
+    lazy_build => 1,
+);
+has complex_content => (
+    is        => 'rw',
+    isa       => 'Str',
+    builder   => '_complex_content',
+    lazy_build => 1,
+);
+has extension => (
+    is        => 'rw',
+    isa       => 'Maybe[Str]',
+    builder   => '_extension',
+    lazy_build => 1,
+);
+
+sub _sequence {
+    my ($self) = @_;
+    my ($node) = $self->document->xpc->findnodes('xsd:complexContent/xsd:extension', $self->node);
+    return $self->_get_sequence_elements($node || $self->node);
+}
+
+sub _module {
+    my ($self) = @_;
+
+    return $self->document->module . '::' . ( $self->name || $self->parent_node->name );
+}
+
+sub _complex_content {
+    my ($self) = @_;
+
+    return $self->document->module . '::' . ( $self->name || $self->parent_node->name );
+}
+
+sub _extension {
+    my ($self) = @_;
+    my @nodes = $self->document->xpc->findnodes('xsd:complexContent/xsd:extension', $self->node);
+
+    for my $node (@nodes) {
+        my ($ns, $tag) = split_ns($node->getAttribute('base'));
+        my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
+
+        return $self->document->get_module_base( $ns_uri ) . "::$tag";
+    }
+
+    return;
+}
+
+sub _get_sequence_elements {
+    my ($self, $node) = @_;
+    my @nodes = $self->document->xpc->findnodes('xsd:sequence/*', $node);
+    my @sequence;
+    my $group = 1;
+
+    for my $node (@nodes) {
+        if ( $node->nodeName =~ /(?:^|:)element$/ ) {
+            push @sequence, W3C::SOAP::XSD::Document::Element->new(
+                parent_node => $self,
+                node   => $node,
+            );
+        }
+        elsif ( $node->nodeName =~ /(?:^|:)choice$/ ) {
+            my @choices = $self->document->xpc->findnodes('xsd:element', $node);
+            for my $choice (@choices) {
+                push @sequence, W3C::SOAP::XSD::Document::Element->new(
+                    parent_node  => $self,
+                    node         => $choice,
+                    choice_group => $group,
+                );
+            }
+            $group++;
+        }
+    }
+
+    return \@sequence;
+}
+
+1;
+
 package MyW3C::XSD::Document;
 
 # Created on: 2012-05-26 15:46:31
@@ -326,7 +437,6 @@ use XML::LibXML;
 use WWW::Mechanize;
 use TryCatch;
 use URI;
-use W3C::SOAP::XSD::Document::ComplexType;
 use W3C::SOAP::XSD::Document::SimpleType;
 use W3C::SOAP::Utils qw/normalise_ns/;
 
@@ -379,13 +489,13 @@ has anon_simple_type_count => (
 );
 has complex_types => (
     is         => 'rw',
-    isa        => 'ArrayRef[W3C::SOAP::XSD::Document::ComplexType]',
+    isa        => 'ArrayRef[MyW3C::XSD::Document::ComplexType]',
     builder    => '_complex_types',
     lazy_build => 1,
 );
 has complex_type => (
     is         => 'rw',
-    isa        => 'HashRef[W3C::SOAP::XSD::Document::ComplexType]',
+    isa        => 'HashRef[MyW3C::XSD::Document::ComplexType]',
     builder    => '_complex_type',
     lazy_build => 0,
 );
@@ -558,7 +668,7 @@ sub _complex_types {
     for my $node (@nodes) {
         # get all top level complex types
         try {
-            push @complex_types, W3C::SOAP::XSD::Document::ComplexType->new(
+            push @complex_types, MyW3C::XSD::Document::ComplexType->new(
                 document => $self,
                 node     => $node,
             );
@@ -582,7 +692,7 @@ sub _complex_types {
         next unless $node;
 
         try {
-            push @complex_types, W3C::SOAP::XSD::Document::ComplexType->new(
+            push @complex_types, MyW3C::XSD::Document::ComplexType->new(
                 parent_node => $element,
                 document    => $self,
                 node        => $node,
