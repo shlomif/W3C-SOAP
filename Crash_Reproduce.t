@@ -32,15 +32,11 @@ my $parser = W3C::SOAP::WSDL::Parser->new(
     },
 );
 
-parser();
+ok $parser, "Got a parser object";
+is $parser->document->target_namespace, 'http://eg.schema.org/v1', "Get target namespace";
+ok scalar( @{ $parser->document->messages }      ), "Got some messages";
+ok scalar( @{ $parser->document->schemas }  ), "Got some schemas";
+ok scalar( @{ $parser->document->port_types } ), "Got some port types";
+
 done_testing();
 exit;
-
-sub parser {
-    ok $parser, "Got a parser object";
-    is $parser->document->target_namespace, 'http://eg.schema.org/v1', "Get target namespace";
-    ok scalar( @{ $parser->document->messages }      ), "Got some messages";
-    ok scalar( @{ $parser->document->schemas }  ), "Got some schemas";
-    ok scalar( @{ $parser->document->port_types } ), "Got some port types";
-}
-
