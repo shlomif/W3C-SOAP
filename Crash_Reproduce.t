@@ -39,6 +39,49 @@ sub ns2module {
     return $ns;
 }
 
+package My::W3C::SOAP::XSD::Document::Type;
+
+# Created on: 2012-06-06 14:00:31
+# Create by:  dev
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp;
+use Scalar::Util;
+use List::Util;
+#use List::MoreUtils;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+
+extends 'W3C::SOAP::XSD::Document::Node';
+
+our $VERSION     = version->new('0.02');
+
+has documentation => (
+    is     => 'rw',
+    isa    => 'Str',
+    builder => '_documentation',
+    lazy_build => 1,
+);
+
+sub _documentation {
+    my ($self) = @_;
+    my ($documentation) = $self->document->xpc->findnodes('xsd:annotation/xsd:documentation', $self->node);
+
+    return '' unless $documentation;
+
+    $documentation = $documentation->textContent;
+    $documentation =~ s/^\s+|\s+$//g;
+
+    return $documentation;
+}
+
+1;
+
 package My::W3C::SOAP::XSD::Document::Element;
 
 # Created on: 2012-05-26 19:04:09
@@ -58,7 +101,7 @@ use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 use W3C::SOAP::Utils qw/xml_error/;
 
-extends 'W3C::SOAP::XSD::Document::Type';
+extends 'My::W3C::SOAP::XSD::Document::Type';
 
 our $VERSION     = version->new('0.02');
 
@@ -324,7 +367,7 @@ use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 use W3C::SOAP::Utils qw/split_ns/;
 
-extends 'W3C::SOAP::XSD::Document::Type';
+extends 'My::W3C::SOAP::XSD::Document::Type';
 
 our $VERSION     = version->new('0.02');
 
@@ -445,7 +488,7 @@ use List::Util;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 
-extends 'W3C::SOAP::XSD::Document::Type';
+extends 'My::W3C::SOAP::XSD::Document::Type';
 
 our $VERSION     = version->new('0.02');
 
