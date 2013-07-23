@@ -7,7 +7,7 @@ use Test::More;
 use File::ShareDir qw/dist_dir/;
 use Template;
 
-package MyW3C::Utils;
+package My::W3C::SOAP::Utils;
 
 use URI;
 use Carp ();
@@ -39,7 +39,7 @@ sub ns2module {
     return $ns;
 }
 
-package MyW3C::XSD::Document::Element;
+package My::W3C::SOAP::XSD::Document::Element;
 
 # Created on: 2012-05-26 19:04:09
 # Create by:  Ivan Wills
@@ -146,7 +146,7 @@ sub _type {
 sub _package {
     my ($self) = @_;
     my $type = $self->type;
-    my ($ns, $name) = MyW3C::Utils::split_ns($type);
+    my ($ns, $name) = My::W3C::SOAP::Utils::split_ns($type);
     $ns ||= $self->document->ns_name;
     my $ns_uri = $name ? $self->document->get_ns_uri($ns, $self->node) : '';
     $name ||= $ns;
@@ -188,7 +188,7 @@ sub module {
 
 sub type_module {
     my ($self) = @_;
-    my ($ns, $type) = MyW3C::Utils::split_ns($self->type);
+    my ($ns, $type) = My::W3C::SOAP::Utils::split_ns($self->type);
     $ns ||= $self->document->ns_name;
     my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
 
@@ -198,7 +198,7 @@ sub type_module {
 sub simple_type {
     my ($self) = @_;
     $self->document->simple_type();
-    my ($ns, $type) = MyW3C::Utils::split_ns($self->type);
+    my ($ns, $type) = My::W3C::SOAP::Utils::split_ns($self->type);
     $ns ||= $self->document->ns_name;
     return "xs:$type"
         if $self->document->ns_map->{$ns}
@@ -228,7 +228,7 @@ sub simple_type {
 sub very_simple_type {
     my ($self) = @_;
     $self->document->simple_type();
-    my ($ns, $type) = MyW3C::Utils::split_ns($self->type);
+    my ($ns, $type) = My::W3C::SOAP::Utils::split_ns($self->type);
     $ns ||= $self->document->ns_name;
     return "xs:$type" if $self->document->ns_map->{$ns} && $self->document->ns_map->{$ns} eq 'http://www.w3.org/2001/XMLSchema';
 
@@ -254,7 +254,7 @@ sub very_simple_type {
 
 sub moosex_type {
     my ($self) = @_;
-    my ($ns, $type) = MyW3C::Utils::split_ns($self->type);
+    my ($ns, $type) = My::W3C::SOAP::Utils::split_ns($self->type);
     $ns ||= $self->document->ns_name;
     my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
     warn "Simple type missing a type for '".$self->type."'\n".xml_error($self->node)."\n"
@@ -305,7 +305,7 @@ sub has_anonymous {
     return 'xs:string';
 }
 
-package MyW3C::XSD::Document::SimpleType;
+package My::W3C::SOAP::XSD::Document::SimpleType;
 
 # Created on: 2012-05-26 19:04:19
 # Create by:  Ivan Wills
@@ -427,7 +427,7 @@ sub moosex_type {
     return $self->name;
 }
 
-package MyW3C::XSD::Document::ComplexType;
+package My::W3C::SOAP::XSD::Document::ComplexType;
 
 # Created on: 2012-05-26 19:04:25
 # Create by:  Ivan Wills
@@ -497,7 +497,7 @@ sub _extension {
     my @nodes = $self->document->xpc->findnodes('xsd:complexContent/xsd:extension', $self->node);
 
     for my $node (@nodes) {
-        my ($ns, $tag) = MyW3C::Utils::split_ns($node->getAttribute('base'));
+        my ($ns, $tag) = My::W3C::SOAP::Utils::split_ns($node->getAttribute('base'));
         my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
 
         return $self->document->get_module_base( $ns_uri ) . "::$tag";
@@ -537,7 +537,7 @@ sub _get_sequence_elements {
 
 1;
 
-package MyW3C::XSD::Document;
+package My::W3C::SOAP::XSD::Document;
 
 # Created on: 2012-05-26 15:46:31
 # Create by:  Ivan Wills
@@ -566,37 +566,37 @@ our $VERSION     = version->new('0.02');
 
 has imports => (
     is         => 'rw',
-    isa        => 'ArrayRef[MyW3C::XSD::Document]',
+    isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document]',
     builder    => '_imports',
     lazy_build => 1,
 );
 has imported => (
     is         => 'rw',
-    isa        => 'HashRef[MyW3C::XSD::Document]',
+    isa        => 'HashRef[My::W3C::SOAP::XSD::Document]',
     builder    => '_imported',
     lazy_build => 1,
 );
 has includes => (
     is         => 'rw',
-    isa        => 'ArrayRef[MyW3C::XSD::Document]',
+    isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document]',
     builder    => '_includes',
     lazy_build => 1,
 );
 has include => (
     is         => 'rw',
-    isa        => 'HashRef[MyW3C::XSD::Document]',
+    isa        => 'HashRef[My::W3C::SOAP::XSD::Document]',
     builder    => '_include',
     lazy_build => 1,
 );
 has simple_types => (
     is         => 'rw',
-    isa        => 'ArrayRef[MyW3C::XSD::Document::SimpleType]',
+    isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document::SimpleType]',
     builder    => '_simple_types',
     lazy_build => 1,
 );
 has simple_type => (
     is         => 'rw',
-    isa        => 'HashRef[MyW3C::XSD::Document::SimpleType]',
+    isa        => 'HashRef[My::W3C::SOAP::XSD::Document::SimpleType]',
     builder    => '_simple_type',
     lazy_build => 0,
 );
@@ -609,13 +609,13 @@ has anon_simple_type_count => (
 );
 has complex_types => (
     is         => 'rw',
-    isa        => 'ArrayRef[MyW3C::XSD::Document::ComplexType]',
+    isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document::ComplexType]',
     builder    => '_complex_types',
     lazy_build => 1,
 );
 has complex_type => (
     is         => 'rw',
-    isa        => 'HashRef[MyW3C::XSD::Document::ComplexType]',
+    isa        => 'HashRef[My::W3C::SOAP::XSD::Document::ComplexType]',
     builder    => '_complex_type',
     lazy_build => 0,
 );
@@ -628,13 +628,13 @@ has anon_complex_type_count => (
 );
 has elements => (
     is         => 'rw',
-    isa        => 'ArrayRef[MyW3C::XSD::Document::Element]',
+    isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document::Element]',
     builder   => '_elements',
     lazy_build => 1,
 );
 has element => (
     is         => 'rw',
-    isa        => 'HashRef[MyW3C::XSD::Document::Element]',
+    isa        => 'HashRef[My::W3C::SOAP::XSD::Document::Element]',
     builder   => '_element',
     lazy_build => 1,
 );
@@ -752,7 +752,7 @@ sub _simple_types {
     my @nodes = $self->xpc->findnodes('//xsd:simpleType');
 
     for my $node (@nodes) {
-        push @simple_types, MyW3C::XSD::Document::SimpleType->new(
+        push @simple_types, My::W3C::SOAP::XSD::Document::SimpleType->new(
             document => $self,
             node   => $node,
         );
@@ -788,7 +788,7 @@ sub _complex_types {
     for my $node (@nodes) {
         # get all top level complex types
         try {
-            push @complex_types, MyW3C::XSD::Document::ComplexType->new(
+            push @complex_types, My::W3C::SOAP::XSD::Document::ComplexType->new(
                 document => $self,
                 node     => $node,
             );
@@ -812,7 +812,7 @@ sub _complex_types {
         next unless $node;
 
         try {
-            push @complex_types, MyW3C::XSD::Document::ComplexType->new(
+            push @complex_types, My::W3C::SOAP::XSD::Document::ComplexType->new(
                 parent_node => $element,
                 document    => $self,
                 node        => $node,
@@ -856,7 +856,7 @@ sub _elements {
     my @nodes = $self->xpc->findnodes('/*/xsd:element');
 
     for my $node (@nodes) {
-        push @elements, MyW3C::XSD::Document::Element->new(
+        push @elements, My::W3C::SOAP::XSD::Document::Element->new(
             document => $self,
             node   => $node,
         );
@@ -947,7 +947,7 @@ sub get_module_base {
 }
 
 1;
-package MyW3C::Parser;
+package My::W3C::SOAP::Parser;
 
 # Created on: 2012-05-27 18:58:29
 # Create by:  Ivan Wills
@@ -993,7 +993,7 @@ around BUILDARGS => sub {
     return $class->$orig($args);
 };
 
-package MyW3C::XSD;
+package My::W3C::SOAP::XSD;
 
 # Created on: 2012-05-26 23:50:44
 # Create by:  Ivan Wills
@@ -1163,7 +1163,7 @@ sub to_xml {
         my $name = $att->name;
 
         # skip attributes that are not XSD attributes
-        next if !$att->does('MyW3C::XSD');
+        next if !$att->does('My::W3C::SOAP::XSD');
         my $has = "has_$name";
 
         # skip sttributes that are not set
@@ -1213,7 +1213,7 @@ sub to_data {
         my $name = $att->name;
 
         # skip attributes that are not XSD attributes
-        next if !$att->does('MyW3C::XSD');
+        next if !$att->does('My::W3C::SOAP::XSD');
         my $has = "has_$name";
 
         # skip sttributes that are not set
@@ -1346,7 +1346,7 @@ sub xsd_subtype {
     return $subtype;
 }
 
-package MyW3C::XSD::Parser;
+package My::W3C::SOAP::XSD::Parser;
 
 # Created on: 2012-05-28 08:11:37
 # Create by:  Ivan Wills
@@ -1371,7 +1371,7 @@ extends 'W3C::SOAP::Parser';
 our $VERSION     = version->new('0.02');
 
 subtype xsd_documents =>
-    as 'ArrayRef[MyW3C::XSD::Document]';
+    as 'ArrayRef[My::W3C::SOAP::XSD::Document]';
 has '+document' => (
     isa      => 'xsd_documents',
     coerce   => 1,
@@ -1437,7 +1437,7 @@ sub write_modules {
             }
             for my $element (@{ $type->sequence }) {
                 next if $element->simple_type;
-                my ($ns) = MyW3C::Utils::split_ns($element->type);
+                my ($ns) = My::W3C::SOAP::Utils::split_ns($element->type);
                 $ns ||= $element->document->target_namespace;
                 my $ns_uri = $element->document->get_ns_uri($ns, $element->node);
                 $modules{ $type->document->get_module_base($ns_uri) }++
@@ -1577,7 +1577,7 @@ sub dynamic_classes {
         push @ordered_xsds, $xsd;
     }
 
-    my %complex_seen = ( 'MyW3C::XSD' => 1 );
+    my %complex_seen = ( 'My::W3C::SOAP::XSD' => 1 );
     for my $xsd (@ordered_xsds) {
         my $module = $xsd->module;
 
@@ -1590,7 +1590,7 @@ sub dynamic_classes {
             my $type_name = $type->name || $type->parent_node->name;
             my $type_module = $module . '::' . $type_name;
 
-            my %modules = ( 'MyW3C::XSD' => 1 );
+            my %modules = ( 'My::W3C::SOAP::XSD' => 1 );
             for my $el (@{ $type->sequence }) {
                 $modules{ $el->type_module }++
                     if ! $el->simple_type && $el->module ne $module
@@ -1670,7 +1670,7 @@ sub elements_package {
 
     my $class = Moose::Meta::Class->create(
         $class_name,
-        superclasses => [ 'MyW3C::XSD' ],
+        superclasses => [ 'My::W3C::SOAP::XSD' ],
     );
 
     $class->add_attribute(
@@ -1734,7 +1734,7 @@ sub element_attributes {
     #[%- IF config->alias && element->name.replace('^\w+:', '') != element->perl_name %]
         #alias         => '[% element->name.replace('^\w+:', '') %]',
     #[%- END %]
-        traits        => [qw{ MyW3C::XSD }],
+        traits        => [qw{ My::W3C::SOAP::XSD }],
         xs_name       => $element->name,
         xs_type       => $element->type,
         xs_min_occurs => $element->min_occurs,
@@ -1751,8 +1751,310 @@ sub element_attributes {
 
     return;
 }
-1;
-package W3C::SOAP::WSDL::Parser;
+
+package My::W3C::SOAP::WSDL::Document;
+
+# Created on: 2012-05-27 18:57:29
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp;
+use Scalar::Util;
+use List::Util;
+#use List::MoreUtils;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+use Path::Class;
+use XML::LibXML;
+use W3C::SOAP::WSDL::Document::Binding;
+use W3C::SOAP::WSDL::Document::Message;
+use W3C::SOAP::WSDL::Document::PortType;
+use W3C::SOAP::WSDL::Document::Service;
+
+extends 'W3C::SOAP::Document';
+
+our $VERSION     = version->new('0.02');
+
+has messages => (
+    is         => 'rw',
+    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::Message]',
+    builder    => '_messages',
+    lazy_build => 1,
+);
+has message => (
+    is         => 'rw',
+    isa        => 'HashRef[W3C::SOAP::WSDL::Document::Message]',
+    builder    => '_message',
+    lazy_build => 1,
+    weak_ref   => 1,
+);
+has port_types => (
+    is         => 'rw',
+    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::PortType]',
+    builder    => '_port_types',
+    lazy_build => 1,
+);
+has port_type => (
+    is         => 'rw',
+    isa        => 'HashRef[W3C::SOAP::WSDL::Document::PortType]',
+    builder    => '_port_type',
+    lazy_build => 1,
+    weak_ref   => 1,
+);
+has bindings => (
+    is         => 'rw',
+    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::Binding]',
+    builder    => '_bindings',
+    lazy_build => 1,
+);
+has binding => (
+    is         => 'rw',
+    isa        => 'HashRef[W3C::SOAP::WSDL::Document::Binding]',
+    builder    => '_binding',
+    lazy_build => 1,
+    weak_ref   => 1,
+);
+has services => (
+    is         => 'rw',
+    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::Service]',
+    builder    => '_services',
+    lazy_build => 1,
+);
+has service => (
+    is         => 'rw',
+    isa        => 'HashRef[W3C::SOAP::WSDL::Document::Service]',
+    builder    => '_service',
+    lazy_build => 1,
+    weak_ref   => 1,
+);
+has policies => (
+    is         => 'rw',
+    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::Policy]',
+    builder    => '_policies',
+    lazy_build => 1,
+    weak_ref   => 1,
+);
+has policy => (
+    is         => 'rw',
+    isa        => 'HashRef[W3C::SOAP::WSDL::Document::Policy]',
+    builder    => '_policy',
+    lazy_build => 1,
+    weak_ref   => 1,
+);
+has schemas => (
+    is         => 'rw',
+    isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document]',
+    builder    => '_schemas',
+    lazy_build => 1,
+);
+has schema => (
+    is         => 'rw',
+    isa        => 'HashRef[My::W3C::SOAP::XSD::Document]',
+    builder    => '_schema',
+    lazy_build => 1,
+    weak_ref   => 1,
+);
+
+sub _messages {
+    my ($self) = @_;
+    my @messages;
+    my @nodes = $self->xpc->findnodes('//wsdl:message');
+
+    for my $node (@nodes) {
+        push @messages, W3C::SOAP::WSDL::Document::Message->new(
+            document => $self,
+            node   => $node,
+        );
+    }
+
+    return \@messages;
+}
+
+sub _message {
+    my ($self) = @_;
+    my %message;
+    for my $message ( @{ $self->messages }) {
+        $message{$message->name} = $message;
+    }
+
+    return \%message;
+}
+
+sub _port_types {
+    my ($self) = @_;
+    my @port_types;
+    my @nodes = $self->xpc->findnodes('//wsdl:portType');
+
+    for my $node (@nodes) {
+        push @port_types, W3C::SOAP::WSDL::Document::PortType->new(
+            document => $self,
+            node   => $node,
+        );
+    }
+
+    return \@port_types;
+}
+
+sub _port_type {
+    my ($self) = @_;
+    my %port_type;
+    for my $port_type ( @{ $self->port_type }) {
+        $port_type{$port_type->name} = $port_type;
+    }
+
+    return \%port_type;
+}
+
+sub _bindings {
+    my ($self) = @_;
+    my @bindings;
+    my @nodes = $self->xpc->findnodes('//wsdl:binding');
+
+    for my $node (@nodes) {
+        push @bindings, W3C::SOAP::WSDL::Document::Binding->new(
+            document => $self,
+            node   => $node,
+        );
+    }
+
+    return \@bindings;
+}
+
+sub _binding {
+    my ($self) = @_;
+    my %binding;
+    for my $binding ( @{ $self->binding }) {
+        $binding{$binding->name} = $binding;
+    }
+
+    return \%binding;
+}
+
+sub _services {
+    my ($self) = @_;
+    my @services;
+    my @nodes = $self->xpc->findnodes('//wsdl:service');
+
+    for my $node (@nodes) {
+        push @services, W3C::SOAP::WSDL::Document::Service->new(
+            document => $self,
+            node   => $node,
+        );
+    }
+
+    return \@services;
+}
+
+sub _service {
+    my ($self) = @_;
+    my %service;
+    for my $service ( @{ $self->service }) {
+        $service{$service->name} = $service;
+    }
+
+    return \%service;
+}
+
+sub _policies {
+    my ($self) = @_;
+    my @policies;
+    my @nodes = $self->xpc->findnodes('/*/wsp:Policy');
+
+    for my $node (@nodes) {
+        push @policies, W3C::SOAP::WSDL::Document::Policy->new(
+            document => $self,
+            node     => $node,
+        );
+    }
+
+    return \@policies;
+}
+
+sub _policy {
+    my ($self) = @_;
+    my %service;
+    for my $service ( @{ $self->service }) {
+        $service{$service->sec_id} = $service;
+    }
+
+    return \%service;
+}
+
+sub _schemas {
+    my ($self) = @_;
+    my @schemas;
+    my @nodes = $self->xpc->findnodes('//wsdl:types/*');
+
+    for my $node (@nodes) {
+        next if $node->getAttribute('namespace') && $node->getAttribute('namespace') eq 'http://www.w3.org/2001/XMLSchema';
+
+        # merge document namespaces into the schema's tags
+        my $doc = $self->xml->getDocumentElement;
+        my @attribs = $doc->getAttributes;
+        for my $ns ( grep {$_->name =~ /^xmlns:/ && !$node->getAttribute($_->name)} @attribs ) {
+            $node->setAttribute( $ns->name, 'value' );
+            $node->setAttribute( $ns->name, $ns->value );
+        }
+
+        my @args;
+        if ( $self->has_module_base ) {
+            my $base = $self->module_base;
+            $base =~ s/WSDL/XSD/;
+            $base .= '::XSD' if ! $base =~ /XSD/;
+            push @args, ( module_base => $base );
+        }
+
+        push @schemas, My::W3C::SOAP::XSD::Document->new(
+            string        => $node->toString,
+            ns_module_map => $self->ns_module_map,
+            @args,
+        );
+        $schemas[-1]->location($self->location);
+        $schemas[-1]->target_namespace;
+    }
+
+    return \@schemas;
+}
+
+sub _schema {
+    my ($self) = @_;
+    my %schema;
+    for my $schema ( @{ $self->schemas }) {
+        $schema{$schema->target_namespace} = $schema;
+    }
+
+    return \%schema;
+}
+
+sub get_nsuri {
+    my ($self, $ns) = @_;
+    my ($node) = $self->xpc->findnodes("//namespace::*[name()='$ns']");
+    return $node->value;
+}
+
+sub xsd_modules {
+    my ($self) = @_;
+    my %modules;
+
+    for my $service (@{ $self->services }) {
+        for my $port (@{ $service->ports }) {
+            for my $operation (@{ $port->binding->operations }) {
+                if ( $operation->port_type->outputs->[0] && $operation->port_type->outputs->[0]->message->element ) {
+                    $modules{$operation->port_type->outputs->[0]->message->element->module}++;
+                }
+            }
+        }
+    }
+
+    return ( sort keys %modules );
+}
+
+package My::W3C::SOAP::WSDL::Parser;
 
 # Created on: 2012-05-27 18:58:29
 # Create by:  Ivan Wills
@@ -1765,16 +2067,15 @@ use warnings;
 use version;
 #use List::MoreUtils;
 use Path::Class;
-use W3C::SOAP::WSDL::Document;
 use W3C::SOAP::WSDL::Meta::Method;
 use File::ShareDir qw/dist_dir/;
 
-extends 'MyW3C::Parser';
+extends 'My::W3C::SOAP::Parser';
 
 our $VERSION     = version->new('0.02');
 
 has '+document' => (
-    isa      => 'W3C::SOAP::WSDL::Document',
+    isa      => 'My::W3C::SOAP::WSDL::Document',
     required => 1,
     handles  => {
         module          => 'module',
@@ -1837,7 +2138,7 @@ sub get_xsd {
         push @args, ( module_base => $base );
     }
 
-    my $parse = MyW3C::XSD::Parser->new(
+    my $parse = My::W3C::SOAP::XSD::Parser->new(
         document      => [],
         ns_module_map => $self->ns_module_map,
         @args,
@@ -1876,7 +2177,7 @@ sub dynamic_classes {
     my ($self) = @_;
     my @classes = $self->get_xsd->dynamic_classes;
 
-    my $class_name = "Dynamic::WSDL::" . MyW3C::Utils::ns2module($self->document->target_namespace);
+    my $class_name = "Dynamic::WSDL::" . My::W3C::SOAP::Utils::ns2module($self->document->target_namespace);
 
     my $wsdl = $self->document;
     my %method;
@@ -1943,7 +2244,7 @@ my $template = Template->new(
     EVAL_PERL    => 1,
 );
 # create the parser object
-my $parser = W3C::SOAP::WSDL::Parser->new(
+my $parser = My::W3C::SOAP::WSDL::Parser->new(
     location      => 't/eg.wsdl',
     module        => 'MyApp::WsdlEg',
     template      => $template,
