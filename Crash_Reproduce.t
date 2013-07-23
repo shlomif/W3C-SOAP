@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use Test::More;
 use Path::Class;
-use Data::Dumper qw/Dumper/;
 use File::ShareDir qw/dist_dir/;
 use Template;
 use W3C::SOAP::WSDL::Parser;
