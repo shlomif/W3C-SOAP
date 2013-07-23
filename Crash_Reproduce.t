@@ -2475,6 +2475,52 @@ sub _ports {
 
 1;
 
+package My::W3C::SOAP::WSDL::Document::Policy;
+
+# Created on: 2012-07-18 11:11:32
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp;
+use Scalar::Util;
+use List::Util;
+#use List::MoreUtils;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+
+extends 'My::W3C::SOAP::Document::Node';
+
+our $VERSION     = version->new('0.02');
+
+has sec_id => (
+    is      => 'rw',
+    isa     => 'Str',
+    builder => '_sec_id',
+);
+has policy_type => (
+    is      => 'rw',
+    isa     => 'Str',
+    builder => '_policy_type',
+);
+
+sub _sec_id {
+    my ($self) = @_;
+    my @attributes = $self->node->getAttributes();
+
+}
+
+sub _policy_type {
+    my ($self) = @_;
+    my @nodes = $self->document->xpc->findnodes('wsdl:operation', $self->node);
+
+}
+
+1;
 package My::W3C::SOAP::WSDL::Document;
 
 # Created on: 2012-05-27 18:57:29
@@ -2553,14 +2599,14 @@ has service => (
 );
 has policies => (
     is         => 'rw',
-    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::Policy]',
+    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::Policy]',
     builder    => '_policies',
     lazy_build => 1,
     weak_ref   => 1,
 );
 has policy => (
     is         => 'rw',
-    isa        => 'HashRef[W3C::SOAP::WSDL::Document::Policy]',
+    isa        => 'HashRef[My::W3C::SOAP::WSDL::Document::Policy]',
     builder    => '_policy',
     lazy_build => 1,
     weak_ref   => 1,
@@ -2685,7 +2731,7 @@ sub _policies {
     my @nodes = $self->xpc->findnodes('/*/wsp:Policy');
 
     for my $node (@nodes) {
-        push @policies, W3C::SOAP::WSDL::Document::Policy->new(
+        push @policies, My::W3C::SOAP::WSDL::Document::Policy->new(
             document => $self,
             node     => $node,
         );
