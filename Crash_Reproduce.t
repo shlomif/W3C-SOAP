@@ -616,7 +616,6 @@ use List::Util;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
-use W3C::SOAP::Utils qw/split_ns/;
 
 extends 'My::W3C::SOAP::XSD::Document::Type';
 
@@ -703,7 +702,7 @@ sub moose_type {
 
 sub moose_base_type {
     my ($self) = @_;
-    my ($ns, $type) = split_ns($self->type);
+    my ($ns, $type) = My::W3C::Utils::split_ns($self->type);
     $ns ||= $self->document->target_namespace;
     return "xs:$type" if $self->document->ns_map->{$ns} && $self->document->ns_map->{$ns} eq 'http://www.w3.org/2001/XMLSchema';
 
@@ -1307,7 +1306,6 @@ use English qw/ -no_match_vars /;
 use Moose::Util::TypeConstraints;
 use MooseX::Types::XMLSchema;
 use W3C::SOAP::XSD::Types qw/:all/;
-use W3C::SOAP::Utils qw/split_ns/;
 use TryCatch;
 use DateTime::Format::Strptime qw/strptime/;
 
@@ -1353,7 +1351,7 @@ has xsd_ns_name => (
 
             while ($child) {
                 if ( $child->nodeName !~ /^#/ ) {
-                    my ($node_ns, $node) = split_ns($child->nodeName);
+                    my ($node_ns, $node) = My::W3C::Utils::split_ns($child->nodeName);
                     confess "Could not get node from (".$child->nodeName." via '$node_ns', '$node')\n"
                         if !$map->{$node};
                     my $attrib = $map->{$node};
@@ -2063,7 +2061,6 @@ use List::Util;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
-use W3C::SOAP::Utils qw/split_ns/;
 extends 'My::W3C::SOAP::Document::Node';
 
 our $VERSION     = version->new('0.02');
@@ -2089,7 +2086,7 @@ has body => (
 
 sub _message {
     my ($self) = @_;
-    my ($ns, $message) = split_ns($self->node->getAttribute('message'));
+    my ($ns, $message) = My::W3C::Utils::split_ns($self->node->getAttribute('message'));
 
     for my $msg (@{ $self->document->messages }) {
         return $msg if $msg->name eq $message;
@@ -2287,7 +2284,7 @@ use List::Util;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
-use W3C::SOAP::Utils qw/split_ns xml_error cmp_ns/;
+use W3C::SOAP::Utils qw/xml_error cmp_ns/;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2313,7 +2310,7 @@ sub _element {
     my $element = $part->getAttribute('element');
     return unless $element;
 
-    my ($ns, $el_name) = split_ns($element);
+    my ($ns, $el_name) = My::W3C::Utils::split_ns($element);
     my $nsuri = $self->document->get_nsuri($ns);
     my @schemas = @{ $self->document->schemas };
 
@@ -2402,7 +2399,6 @@ use List::Util;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
-use W3C::SOAP::Utils qw/split_ns/;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2424,7 +2420,7 @@ has address => (
 
 sub _binding {
     my ($self) = @_;
-    my ($ns, $name) = split_ns($self->node->getAttribute('binding'));
+    my ($ns, $name) = My::W3C::Utils::split_ns($self->node->getAttribute('binding'));
 
     for my $binding (@{ $self->document->bindings }) {
         return $binding if $binding->name eq $name;
