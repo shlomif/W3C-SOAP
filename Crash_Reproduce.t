@@ -2404,7 +2404,7 @@ use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 use W3C::SOAP::Utils qw/split_ns/;
 
-extends 'W3C::SOAP::Document::Node';
+extends 'My::W3C::SOAP::Document::Node';
 
 our $VERSION     = version->new('0.02');
 
