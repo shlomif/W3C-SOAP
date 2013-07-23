@@ -2952,57 +2952,6 @@ sub load_wsdl {
     return $cache{$location} = $class->new;
 }
 
-sub dynamic_classes {
-    my ($self) = @_;
-    my @classes = $self->get_xsd->dynamic_classes;
-
-    my $class_name = "Dynamic::WSDL::" . My::W3C::SOAP::Utils::ns2module($self->document->target_namespace);
-
-    my $wsdl = $self->document;
-    my %method;
-    for my $service (@{ $wsdl->services }) {
-        for my $port (@{ $service->ports }) {
-            for my $operation (@{ $port->binding->operations }) {
-                my $in_element  = eval { $operation->port_type->inputs->[0]->message->element };
-                my $out_element = eval { $operation->port_type->outputs->[0]->message->element };
-                my @faults = eval {
-                    map {{
-                        class => $_->message->element->module,
-                        name  => $_->message->element->perl_name,
-                    }}
-                    @{ $operation->port_type->faults }
-                };
-
-                $method{ $operation->perl_name } = My::W3C::SOAP::WSDL::Meta::Method->wrap(
-                    body           => sub { shift->_request($operation->perl_name => @_) },
-                    package_name   => $class_name,
-                    name           => $operation->perl_name,
-                    wsdl_operation => $operation->name,
-                    $in_element  ? ( in_class      => $in_element->module     ) : (),
-                    $in_element  ? ( in_attribute  => $in_element->perl_name  ) : (),
-                    $out_element ? ( out_class     => $out_element->module    ) : (),
-                    $out_element ? ( out_attribute => $out_element->perl_name ) : (),
-                    @faults ? ( faults => \@faults ) : (),
-                );
-            }
-        }
-    }
-
-    my $class = Moose::Meta::Class->create(
-        $class_name,
-        superclasses => [ 'W3C::SOAP::WSDL' ],
-        methods      => \%method,
-    );
-
-    $class->add_attribute(
-        '+location',
-        default  => $wsdl->services->[0]->ports->[0]->address,
-        required => 1,
-    );
-
-    return $class_name;
-}
-
 1;
 
 package main;
