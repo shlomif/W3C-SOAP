@@ -12,6 +12,18 @@ package My::W3C::SOAP::Utils;
 use URI;
 use Carp ();
 
+sub normalise_ns {
+    my ($ns) = @_;
+
+    my $uri = URI->new($ns);
+
+    if ( $uri->can('host') ) {
+        $uri->host(lc $uri->host);
+    }
+
+    return "$uri";
+}
+
 sub split_ns {
     my ($tag) = @_;
     Carp::confess "No XML tag passed to split!\n" unless defined $tag;
@@ -57,7 +69,6 @@ use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 use TryCatch;
 use URI;
-use W3C::SOAP::Utils qw/normalise_ns ns2module/;
 use XML::LibXML;
 
 our $VERSION     = version->new('0.02');
@@ -170,18 +181,18 @@ sub _module {
     my $ns = $self->target_namespace;
 
     if ( $self->has_module_base ) {
-        $self->ns_module_map->{normalise_ns($self->target_namespace)}
-            = $self->module_base . '::' . ns2module($self->target_namespace);
+        $self->ns_module_map->{My::W3C::Utils::normalise_ns($self->target_namespace)}
+            = $self->module_base . '::' . My::W3C::Utils::ns2module($self->target_namespace);
     }
 
-    if ( !$self->ns_module_map->{normalise_ns($ns)} && $self->ns_module_map->{$ns} ) {
-        $self->ns_module_map->{normalise_ns($ns)} = $self->ns_module_map->{$ns};
+    if ( !$self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)} && $self->ns_module_map->{$ns} ) {
+        $self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)} = $self->ns_module_map->{$ns};
     }
 
     confess "Trying to get module mappings when none specified!\n" if !$self->has_ns_module_map;
-    confess "No mapping specified for the namespace ", $ns, "!\n"  if !$self->ns_module_map->{normalise_ns($ns)};
+    confess "No mapping specified for the namespace ", $ns, "!\n"  if !$self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)};
 
-    return $self->ns_module_map->{normalise_ns($ns)};
+    return $self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)};
 }
 
 package My::W3C::SOAP::Document::Node;
@@ -851,7 +862,6 @@ use XML::LibXML;
 use WWW::Mechanize;
 use TryCatch;
 use URI;
-use W3C::SOAP::Utils qw/normalise_ns/;
 
 extends 'My::W3C::SOAP::Document';
 
@@ -1234,9 +1244,9 @@ sub get_module_base {
     my ($self, $ns) = @_;
 
     confess "Trying to get module mappings when none specified!\n" if !$self->has_ns_module_map;
-    confess "No mapping specified for the namespace $ns!\n"        if !$self->ns_module_map->{normalise_ns($ns)};
+    confess "No mapping specified for the namespace $ns!\n"        if !$self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)};
 
-    return $self->ns_module_map->{normalise_ns($ns)};
+    return $self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)};
 }
 
 1;
