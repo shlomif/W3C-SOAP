@@ -155,7 +155,7 @@ around BUILDARGS => sub {
         }
         catch($e) {
             chomp $e;
-            W3C::SOAP::Exception::XML->throw( error => $e, faultstring => $e );
+            die "Foo";
         }
     }
     elsif ( $args->{location} ) {
@@ -164,7 +164,7 @@ around BUILDARGS => sub {
         }
         catch($e) {
             chomp $e;
-            W3C::SOAP::Exception::XML->throw( error => $e, faultstring => $args->{location} );
+            die "Bar";
         }
     }
 
@@ -1572,28 +1572,6 @@ sub to_data {
     }
 
     return \%nodes;
-}
-
-sub get_xml_nodes {
-    my ($self) = @_;
-    my $meta = $self->meta;
-
-    my @parent_nodes;
-    my @supers = $meta->superclasses;
-    for my $super (@supers) {
-        push @parent_nodes, $super->get_xml_nodes if $super ne __PACKAGE__ && UNIVERSAL::can($super, 'get_xml_nodes');
-    }
-
-    return @parent_nodes, map {
-            $meta->get_attribute($_)
-        }
-        sort {
-            $meta->get_attribute($a)->insertion_order <=> $meta->get_attribute($b)->insertion_order
-        }
-        grep {
-            $meta->get_attribute($_)->does('W3C::SOAP::XSD::Traits')
-        }
-        $meta->get_attribute_list;
 }
 
 my %types;
