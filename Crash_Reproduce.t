@@ -80,7 +80,6 @@ package My::W3C::SOAP::Document;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp qw/carp croak cluck confess longmess/;
 use Data::Dumper qw/Dumper/;
@@ -222,7 +221,6 @@ package My::W3C::SOAP::Document::Node;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp;
 use Data::Dumper qw/Dumper/;
@@ -302,7 +300,6 @@ package My::W3C::SOAP::XSD::Document::Node;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use English qw/ -no_match_vars /;
 
@@ -323,7 +320,6 @@ package My::W3C::SOAP::XSD::Document::Type;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp;
 #use List::MoreUtils;
@@ -364,7 +360,6 @@ package My::W3C::SOAP::XSD::Document::Element;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp;
 #use List::MoreUtils;
@@ -627,7 +622,6 @@ package My::W3C::SOAP::XSD::Document::SimpleType;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp;
 #use List::MoreUtils;
@@ -746,7 +740,6 @@ package My::W3C::SOAP::XSD::Document::ComplexType;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp;
 #use List::MoreUtils;
@@ -1307,7 +1300,6 @@ package My::W3C::SOAP::XSD::Types;
 # $Revision$, $Source$, $Date$
 
 use strict;
-use warnings;
 use version;
 use Carp;
 use Data::Dumper qw/Dumper/;
@@ -1468,7 +1460,6 @@ package My::W3C::SOAP::XSD;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp qw/carp croak cluck confess longmess/;
 #use List::MoreUtils;
@@ -1796,7 +1787,6 @@ package My::W3C::SOAP::XSD::Parser;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use List::MoreUtils qw/all/;
 use Path::Class;
@@ -2195,7 +2185,6 @@ package My::W3C::SOAP::WSDL::Document::InOutPuts;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp;
 #use List::MoreUtils;
@@ -2242,7 +2231,6 @@ package My::W3C::SOAP::WSDL::Document::Operation;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp;
 #use List::MoreUtils;
@@ -2342,7 +2330,6 @@ package My::W3C::SOAP::WSDL::Document::Binding;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp;
 #use List::MoreUtils;
@@ -2412,7 +2399,6 @@ package My::W3C::SOAP::WSDL::Document::Message;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp;
 #use List::MoreUtils;
@@ -2480,7 +2466,6 @@ package My::W3C::SOAP::WSDL::Document::PortType;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp;
 #use List::MoreUtils;
@@ -2522,7 +2507,6 @@ package My::W3C::SOAP::WSDL::Document::Port;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp;
 #use List::MoreUtils;
@@ -2571,7 +2555,6 @@ package My::W3C::SOAP::WSDL::Document::Service;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp;
 #use List::MoreUtils;
@@ -2615,7 +2598,6 @@ package My::W3C::SOAP::WSDL::Document::Policy;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp;
 #use List::MoreUtils;
@@ -2659,7 +2641,6 @@ package My::W3C::SOAP::WSDL::Document;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp;
 #use List::MoreUtils;
@@ -2955,7 +2936,6 @@ package My::W3C::SOAP::WSDL::Meta::Method;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 use Carp;
 #use List::MoreUtils;
@@ -3014,7 +2994,6 @@ package My::W3C::SOAP::WSDL::Parser;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use warnings;
 use version;
 #use List::MoreUtils;
 use Path::Class;
