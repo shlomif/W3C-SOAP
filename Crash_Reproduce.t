@@ -310,7 +310,6 @@ package My::W3C::SOAP::XSD::Document::Type;
 
 use Moose;
 use Carp;
-#use List::MoreUtils;
 
 extends 'My::W3C::SOAP::XSD::Document::Node';
 
@@ -346,7 +345,6 @@ package My::W3C::SOAP::XSD::Document::Element;
 
 use Moose;
 use Carp;
-#use List::MoreUtils;
 
 extends 'My::W3C::SOAP::XSD::Document::Type';
 
@@ -604,7 +602,6 @@ package My::W3C::SOAP::XSD::Document::SimpleType;
 
 use Moose;
 use Carp;
-#use List::MoreUtils;
 
 extends 'My::W3C::SOAP::XSD::Document::Type';
 
@@ -718,7 +715,6 @@ package My::W3C::SOAP::XSD::Document::ComplexType;
 
 use Moose;
 use Carp;
-#use List::MoreUtils;
 
 extends 'My::W3C::SOAP::XSD::Document::Type';
 
@@ -821,7 +817,6 @@ package My::W3C::SOAP::XSD::Document;
 
 use Moose;
 use Carp qw/carp croak cluck confess longmess/;
-#use List::MoreUtils;
 use Path::Class;
 use XML::LibXML;
 use WWW::Mechanize;
@@ -1415,7 +1410,6 @@ package My::W3C::SOAP::XSD;
 
 use Moose;
 use Carp qw/carp croak cluck confess longmess/;
-#use List::MoreUtils;
 use Moose::Util::TypeConstraints;
 use MooseX::Types::XMLSchema;
 My::W3C::SOAP::XSD::Types->import(':all');
@@ -2134,7 +2128,6 @@ package My::W3C::SOAP::WSDL::Document::InOutPuts;
 
 use Moose;
 use Carp;
-#use List::MoreUtils;
 extends 'My::W3C::SOAP::Document::Node';
 
 
@@ -2176,7 +2169,6 @@ package My::W3C::SOAP::WSDL::Document::Operation;
 
 use Moose;
 use Carp;
-#use List::MoreUtils;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2271,7 +2263,6 @@ package My::W3C::SOAP::WSDL::Document::Binding;
 
 use Moose;
 use Carp;
-#use List::MoreUtils;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2336,7 +2327,6 @@ package My::W3C::SOAP::WSDL::Document::Message;
 
 use Moose;
 use Carp;
-#use List::MoreUtils;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2399,7 +2389,6 @@ package My::W3C::SOAP::WSDL::Document::PortType;
 
 use Moose;
 use Carp;
-#use List::MoreUtils;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2436,7 +2425,6 @@ package My::W3C::SOAP::WSDL::Document::Port;
 
 use Moose;
 use Carp;
-#use List::MoreUtils;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2480,7 +2468,6 @@ package My::W3C::SOAP::WSDL::Document::Service;
 
 use Moose;
 use Carp;
-#use List::MoreUtils;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2519,7 +2506,6 @@ package My::W3C::SOAP::WSDL::Document::Policy;
 
 use Moose;
 use Carp;
-#use List::MoreUtils;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2558,7 +2544,6 @@ package My::W3C::SOAP::WSDL::Document;
 
 use Moose;
 use Carp;
-#use List::MoreUtils;
 use Path::Class;
 use XML::LibXML;
 
@@ -2849,7 +2834,6 @@ package My::W3C::SOAP::WSDL::Meta::Method;
 
 use Moose;
 use Carp;
-#use List::MoreUtils;
 
 extends 'Moose::Meta::Method';
 
@@ -2902,7 +2886,6 @@ package My::W3C::SOAP::WSDL::Parser;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-#use List::MoreUtils;
 use Path::Class;
 use File::ShareDir qw/dist_dir/;
 
