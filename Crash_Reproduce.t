@@ -33,7 +33,6 @@ my $parser = W3C::SOAP::WSDL::Parser->new(
 );
 
 parser();
-cleanup();
 done_testing();
 exit;
 
