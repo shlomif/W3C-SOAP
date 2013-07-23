@@ -80,7 +80,6 @@ package My::W3C::SOAP::Document;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp qw/carp croak cluck confess longmess/;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
@@ -88,7 +87,6 @@ use TryCatch;
 use URI;
 use XML::LibXML;
 
-our $VERSION     = version->new('0.02');
 
 has string => (
     is         => 'rw',
@@ -221,12 +219,10 @@ package My::W3C::SOAP::Document::Node;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 
-our $VERSION    = version->new('0.02');
 
 has node => (
     is       => 'rw',
@@ -300,12 +296,10 @@ package My::W3C::SOAP::XSD::Document::Node;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
-our $VERSION     = version->new('0.02');
 
 has '+parent_node' => (
     isa    => 'Maybe[My::W3C::SOAP::XSD::Document::Node]',
@@ -320,7 +314,6 @@ package My::W3C::SOAP::XSD::Document::Type;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
@@ -328,7 +321,6 @@ use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::XSD::Document::Node';
 
-our $VERSION     = version->new('0.02');
 
 has documentation => (
     is     => 'rw',
@@ -360,7 +352,6 @@ package My::W3C::SOAP::XSD::Document::Element;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
@@ -368,7 +359,6 @@ use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::XSD::Document::Type';
 
-our $VERSION     = version->new('0.02');
 
 has complex_type => (
     is     => 'rw',
@@ -622,7 +612,6 @@ package My::W3C::SOAP::XSD::Document::SimpleType;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
@@ -630,7 +619,6 @@ use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::XSD::Document::Type';
 
-our $VERSION     = version->new('0.02');
 
 has type => (
     is         => 'rw',
@@ -740,7 +728,6 @@ package My::W3C::SOAP::XSD::Document::ComplexType;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
@@ -748,7 +735,6 @@ use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::XSD::Document::Type';
 
-our $VERSION     = version->new('0.02');
 
 has sequence => (
     is      => 'rw',
@@ -847,7 +833,6 @@ package My::W3C::SOAP::XSD::Document;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp qw/carp croak cluck confess longmess/;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
@@ -860,7 +845,6 @@ use URI;
 
 extends 'My::W3C::SOAP::Document';
 
-our $VERSION     = version->new('0.02');
 
 has imports => (
     is         => 'rw',
@@ -1254,8 +1238,6 @@ package My::W3C::SOAP::Parser;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
-our $VERSION     = version->new('0.02');
 
 has document => (
     is       => 'rw',
@@ -1300,7 +1282,6 @@ package My::W3C::SOAP::XSD::Types;
 # $Revision$, $Source$, $Date$
 
 use strict;
-use version;
 use Carp;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
@@ -1321,7 +1302,6 @@ use DateTime;
 use DateTime::Format::Strptime qw/strptime/;
 use Math::BigFloat;
 
-our $VERSION     = version->new('0.02');
 
 my $sig_warn = $SIG{__WARN__};
 $SIG{__WARN__} = sub {};
@@ -1460,7 +1440,6 @@ package My::W3C::SOAP::XSD;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp qw/carp croak cluck confess longmess/;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
@@ -1471,7 +1450,6 @@ My::W3C::SOAP::XSD::Types->import(':all');
 use TryCatch;
 use DateTime::Format::Strptime qw/strptime/;
 
-our $VERSION     = version->new('0.02');
 
 has xsd_ns => (
     is  => 'rw',
@@ -1787,7 +1765,6 @@ package My::W3C::SOAP::XSD::Parser;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use List::MoreUtils qw/all/;
 use Path::Class;
 use File::ShareDir qw/dist_dir/;
@@ -1799,7 +1776,6 @@ Moose::Exporter->setup_import_methods(
 
 extends 'My::W3C::SOAP::Parser';
 
-our $VERSION     = version->new('0.02');
 
 subtype xsd_documents =>
     as 'ArrayRef[My::W3C::SOAP::XSD::Document]';
@@ -2185,14 +2161,12 @@ package My::W3C::SOAP::WSDL::Document::InOutPuts;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 extends 'My::W3C::SOAP::Document::Node';
 
-our $VERSION     = version->new('0.02');
 
 has message => (
     is         => 'rw',
@@ -2231,7 +2205,6 @@ package My::W3C::SOAP::WSDL::Document::Operation;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
@@ -2239,7 +2212,6 @@ use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
-our $VERSION     = version->new('0.02');
 
 has style => (
     is         => 'rw',
@@ -2330,7 +2302,6 @@ package My::W3C::SOAP::WSDL::Document::Binding;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
@@ -2338,7 +2309,6 @@ use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
-our $VERSION     = version->new('0.02');
 
 has style => (
     is         => 'rw',
@@ -2399,7 +2369,6 @@ package My::W3C::SOAP::WSDL::Document::Message;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
@@ -2407,7 +2376,6 @@ use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
-our $VERSION     = version->new('0.02');
 
 has element => (
     is         => 'rw',
@@ -2466,7 +2434,6 @@ package My::W3C::SOAP::WSDL::Document::PortType;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
@@ -2474,7 +2441,6 @@ use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
-our $VERSION     = version->new('0.02');
 
 has operations => (
     is         => 'rw',
@@ -2507,7 +2473,6 @@ package My::W3C::SOAP::WSDL::Document::Port;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
@@ -2515,7 +2480,6 @@ use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
-our $VERSION     = version->new('0.02');
 
 has binding => (
     is         => 'rw',
@@ -2555,7 +2519,6 @@ package My::W3C::SOAP::WSDL::Document::Service;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
@@ -2563,7 +2526,6 @@ use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
-our $VERSION     = version->new('0.02');
 
 has ports => (
     is         => 'rw',
@@ -2598,7 +2560,6 @@ package My::W3C::SOAP::WSDL::Document::Policy;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
@@ -2606,7 +2567,6 @@ use English qw/ -no_match_vars /;
 
 extends 'My::W3C::SOAP::Document::Node';
 
-our $VERSION     = version->new('0.02');
 
 has sec_id => (
     is      => 'rw',
@@ -2641,7 +2601,6 @@ package My::W3C::SOAP::WSDL::Document;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
@@ -2651,7 +2610,6 @@ use XML::LibXML;
 
 extends 'My::W3C::SOAP::Document';
 
-our $VERSION     = version->new('0.02');
 
 has messages => (
     is         => 'rw',
@@ -2936,7 +2894,6 @@ package My::W3C::SOAP::WSDL::Meta::Method;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 use Carp;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
@@ -2944,7 +2901,6 @@ use English qw/ -no_match_vars /;
 
 extends 'Moose::Meta::Method';
 
-our $VERSION     = version->new('0.02');
 
 has wsdl_operation => (
     is        => 'rw',
@@ -2994,14 +2950,12 @@ package My::W3C::SOAP::WSDL::Parser;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use version;
 #use List::MoreUtils;
 use Path::Class;
 use File::ShareDir qw/dist_dir/;
 
 extends 'My::W3C::SOAP::Parser';
 
-our $VERSION     = version->new('0.02');
 
 has '+document' => (
     isa      => 'My::W3C::SOAP::WSDL::Document',
