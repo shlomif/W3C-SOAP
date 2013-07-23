@@ -1013,7 +1013,6 @@ use English qw/ -no_match_vars /;
 use Moose::Util::TypeConstraints;
 use MooseX::Types::XMLSchema;
 use W3C::SOAP::XSD::Types qw/:all/;
-use W3C::SOAP::XSD::Traits;
 use W3C::SOAP::Utils qw/split_ns/;
 use TryCatch;
 use DateTime::Format::Strptime qw/strptime/;
