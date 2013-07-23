@@ -31,10 +31,6 @@ use W3C::SOAP::WSDL::Document;
 use W3C::SOAP::WSDL::Meta::Method;
 use File::ShareDir qw/dist_dir/;
 
-Moose::Exporter->setup_import_methods(
-    as_is => ['load_wsdl'],
-);
-
 extends 'W3C::SOAP::Parser';
 
 our $VERSION     = version->new('0.02');
