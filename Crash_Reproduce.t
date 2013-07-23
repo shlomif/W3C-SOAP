@@ -322,7 +322,6 @@ use List::Util;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
-use W3C::SOAP::Utils qw/split_ns/;
 
 extends 'W3C::SOAP::XSD::Document::Type';
 
@@ -376,7 +375,7 @@ sub _extension {
     my @nodes = $self->document->xpc->findnodes('xsd:complexContent/xsd:extension', $self->node);
 
     for my $node (@nodes) {
-        my ($ns, $tag) = split_ns($node->getAttribute('base'));
+        my ($ns, $tag) = MyW3C::Utils::split_ns($node->getAttribute('base'));
         my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
 
         return $self->document->get_module_base( $ns_uri ) . "::$tag";
