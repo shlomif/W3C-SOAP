@@ -12,6 +12,26 @@ package My::W3C::SOAP::Utils;
 use URI;
 use Carp ();
 
+sub cmp_ns {
+    my ($ns1, $ns2) = @_;
+
+    return normalise_ns($ns1) eq normalise_ns($ns2);
+}
+
+sub xml_error {
+    my ($node) = @_;
+    my @lines  = split /\r?\n/, $node->toString;
+    my $indent = '';
+    if ( $lines[0] !~ /^\s+/ && $lines[-1] =~ /^(\s+)/ ) {
+        $indent = $1;
+    }
+    my $error = $indent . $node->toString."\n at ";
+    $error .= "line - ".$node->line_number.' ' if $node->line_number;
+    $error .= "path - ".$node->nodePath;
+
+    return $error;
+}
+
 sub normalise_ns {
     my ($ns) = @_;
 
@@ -361,7 +381,6 @@ use List::Util;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
-use W3C::SOAP::Utils qw/xml_error/;
 
 extends 'My::W3C::SOAP::XSD::Document::Type';
 
@@ -510,7 +529,7 @@ sub simple_type {
             && $self->document->ns_map->{$ns} eq 'http://www.w3.org/2001/XMLSchema';
 
     my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
-    warn "Simple type missing a type for '".$self->type."'\n".xml_error($self->node)."\n"
+    warn "Simple type missing a type for '".$self->type."'\n".My::W3C::Utils::xml_error($self->node)."\n"
         if !$ns && $ns_uri ne 'http://www.w3.org/2001/XMLSchema';
 
     return "xs:$type" if $ns_uri eq 'http://www.w3.org/2001/XMLSchema';
@@ -538,7 +557,7 @@ sub very_simple_type {
     return "xs:$type" if $self->document->ns_map->{$ns} && $self->document->ns_map->{$ns} eq 'http://www.w3.org/2001/XMLSchema';
 
     my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
-    warn "Simple type missing a type for '".$self->type."'\n".xml_error($self->node)."\n"
+    warn "Simple type missing a type for '".$self->type."'\n".My::W3C::Utils::xml_error($self->node)."\n"
         if !$ns && $ns_uri ne 'http://www.w3.org/2001/XMLSchema';
 
     return "xs:$type" if $ns_uri eq 'http://www.w3.org/2001/XMLSchema';
@@ -562,7 +581,7 @@ sub moosex_type {
     my ($ns, $type) = My::W3C::SOAP::Utils::split_ns($self->type);
     $ns ||= $self->document->ns_name;
     my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
-    warn "Simple type missing a type for '".$self->type."'\n".xml_error($self->node)."\n"
+    warn "Simple type missing a type for '".$self->type."'\n".My::W3C::Utils::xml_error($self->node)."\n"
         if !$ns && $ns_uri ne 'http://www.w3.org/2001/XMLSchema';
 
     return "'xs:$type'" if $ns_uri eq 'http://www.w3.org/2001/XMLSchema';
@@ -2294,7 +2313,6 @@ use List::Util;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
-use W3C::SOAP::Utils qw/xml_error cmp_ns/;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2328,7 +2346,7 @@ sub _element {
         push @schemas, @{ $schema->imports };
         push @schemas, @{ $schema->includes };
 
-        if ( cmp_ns($schema->target_namespace, $nsuri) ) {
+        if ( My::W3C::Utils::cmp_ns($schema->target_namespace, $nsuri) ) {
             for my $element (@{ $schema->elements }) {
                 return $element if $element->name eq $el_name;
             }
