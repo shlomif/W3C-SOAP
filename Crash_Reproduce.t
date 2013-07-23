@@ -2486,35 +2486,6 @@ sub _ports {
     return \@complex_types;
 }
 
-1;
-
-package My::W3C::SOAP::WSDL::Document::Policy;
-
-# Created on: 2012-07-18 11:11:32
-# Create by:  Ivan Wills
-# $Id$
-# $Revision$, $HeadURL$, $Date$
-# $Revision$, $Source$, $Date$
-
-use Moose;
-use Carp;
-
-extends 'My::W3C::SOAP::Document::Node';
-
-
-has policy_type => (
-    is      => 'rw',
-    isa     => 'Str',
-    builder => '_policy_type',
-);
-
-sub _policy_type {
-    my ($self) = @_;
-    my @nodes = $self->document->xpc->findnodes('wsdl:operation', $self->node);
-
-}
-
-1;
 package My::W3C::SOAP::WSDL::Document;
 
 # Created on: 2012-05-27 18:57:29
