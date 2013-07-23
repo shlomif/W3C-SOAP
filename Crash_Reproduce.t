@@ -39,6 +39,27 @@ sub ns2module {
     return $ns;
 }
 
+package My::W3C::SOAP::XSD::Document::Node;
+
+# Created on: 2012-05-26 19:04:19
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use English qw/ -no_match_vars /;
+
+extends 'W3C::SOAP::Document::Node';
+
+our $VERSION     = version->new('0.02');
+
+has '+parent_node' => (
+    isa    => 'Maybe[My::W3C::SOAP::XSD::Document::Node]',
+);
+
 package My::W3C::SOAP::XSD::Document::Type;
 
 # Created on: 2012-06-06 14:00:31
@@ -57,7 +78,7 @@ use List::Util;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 
-extends 'W3C::SOAP::XSD::Document::Node';
+extends 'My::W3C::SOAP::XSD::Document::Node';
 
 our $VERSION     = version->new('0.02');
 
