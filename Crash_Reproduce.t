@@ -233,7 +233,6 @@ use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 
 our $VERSION    = version->new('0.02');
-$ENV{W3C_SOAP_NAME_STYLE} ||= 'perl';
 
 has node => (
     is       => 'rw',
@@ -293,8 +292,6 @@ sub perl_name {
     my ($self) = @_;
     my $name = $self->name;
     return if !$name;
-
-    return $name if $ENV{W3C_SOAP_NAME_STYLE} eq 'original';
 
     $name =~ s/ (?<= [^A-Z_] ) ([A-Z]) /_$1/gxms;
     return lc $name;
@@ -2041,13 +2038,6 @@ sub element_attributes {
         @extra,
     );
 
-    if ( $ENV{W3C_SOAP_NAME_STYLE} eq 'both' && $element->name ne $element->perl_name ) {
-        my $name = $element->perl_name;
-        $class->add_method(
-            $element->name => sub { shift->$name(@_) }
-        );
-    }
-
     return;
 }
 
@@ -2994,15 +2984,6 @@ sub dynamic_classes {
                     $out_element ? ( out_attribute => $out_element->perl_name ) : (),
                     @faults ? ( faults => \@faults ) : (),
                 );
-
-                if ( $ENV{W3C_SOAP_NAME_STYLE} eq 'both' && $operation->name ne $operation->perl_name ) {
-                    my $name = $operation->perl_name;
-                    $method{ $operation->name } = Moose::Meta::Method->wrap(
-                        body         => sub { shift->$name(@_) },
-                        package_name => $class_name,
-                        name         => $operation->name,
-                    );
-                }
             }
         }
     }
