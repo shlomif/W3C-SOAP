@@ -1660,7 +1660,7 @@ Moose::Exporter->setup_import_methods(
     as_is => ['load_xsd'],
 );
 
-extends 'W3C::SOAP::Parser';
+extends 'My::W3C::SOAP::Parser';
 
 our $VERSION     = version->new('0.02');
 
