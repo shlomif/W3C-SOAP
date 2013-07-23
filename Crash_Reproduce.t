@@ -1312,6 +1312,167 @@ around BUILDARGS => sub {
     return $class->$orig($args);
 };
 
+package My::W3C::SOAP::XSD::Types;
+
+# Created on: 2012-05-26 23:08:42
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use strict;
+use warnings;
+use version;
+use Carp;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+use DateTime::Format::Strptime;
+use MooseX::Types -declare
+    => [qw/
+        xsd:duration
+        xsd:dateTime
+        xsd:time
+        xsd:date
+        xsd:gYearMonth
+        xsd:gYear
+        xsd:gMonthDay
+        xsd:gDay
+        xsd:gMonth
+    /];
+use DateTime;
+use DateTime::Format::Strptime qw/strptime/;
+use Math::BigFloat;
+
+our $VERSION     = version->new('0.02');
+
+my $sig_warn = $SIG{__WARN__};
+$SIG{__WARN__} = sub {};
+
+class_type 'DateTime';
+class_type 'XML::LibXML::Node';
+
+subtype 'xsd:boolean',
+    as 'xs:boolean';
+coerce 'xsd:boolean',
+    from 'Str'
+        => via {
+              $_ eq 'true'  ? 1
+            : $_ eq 'false' ? undef
+            :                 confess "'$_' isn't a xs:boolean!";
+        };
+
+subtype 'xsd:double',
+    as 'xs:double';
+coerce 'xsd:double',
+#    from 'Num'
+#        => via { Params::Coerce::coerce('xs:double', $_) },
+    from 'Str'
+        => via { Math::BigFloat->new($_) };
+
+subtype 'xsd:decimal',
+    as 'xs:decimal';
+coerce 'xsd:decimal',
+#    from 'Num'
+#        => via { Params::Coerce::coerce('xs:decimal', $_) },
+    from 'Str'
+        => via { Math::BigFloat->new($_) };
+
+subtype 'xsd:long',
+    as 'xs:long';
+coerce 'xsd:long',
+#    from 'Num'
+#        => via { Params::Coerce::coerce('xs:long', $_) },
+    from 'Str'
+        => via { Math::BigInt->new($_) };
+
+#subtype 'xsd:duration',
+#    as 'DateTime';
+#coerce 'xsd:duration',
+#    from 'Str',
+#    via {
+#        DateTime::Format::Strptime("", $_)
+#    };
+#
+subtype 'xsd:dateTime',
+    as 'DateTime';
+coerce 'xsd:dateTime',
+    from 'XML::LibXML::Node' =>
+        => via { $_->textContent },
+    from 'Str',
+        => via {
+            return strptime("%FT%T", $_) if /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/xms;
+            # DateTime expects timezones as [+-]hhmm XMLSchema expects them as [+-]hh:mm
+            # also remove any milli seconds
+            s/(?:[.]\d+)? ([+-]\d{2}) : (\d{2}) $/$1$2/xms;
+            # Dates with timezones are meant to track the begging of the day
+            return strptime("%FT%T%z", $_);
+        };
+
+#subtype 'xsd:time',
+#    as 'DateTime';
+#coerce 'xsd:time',
+#    from 'Str',
+#    via {
+#        DateTime::Format::Striptime("", $_)
+#    };
+
+subtype 'xsd:date',
+    as 'DateTime';
+coerce 'xsd:date',
+    from 'XML::LibXML::Node' =>
+        => via { $_->textContent },
+    from 'Str',
+        => via {
+            return strptime("%F", $_) if /^\d{4}-\d{2}-\d{2}$/xms;
+            # DateTime expects timezones as [+-]hhmm XMLSchema expects them as [+-]hh:mm
+            s/([+-]\d{2}):(\d{2})$/$1$2/;
+            # Dates with timezones are meant to track the begging of the day
+            return strptime("%TT%F%z", "00:00:00T$_");
+        };
+
+#subtype 'xsd:gYearMonth',
+#    as 'DateTime';
+#coerce 'xsd:gYearMonth',
+#    from 'Str',
+#    via {
+#        DateTime::Format::Striptime("", $_)
+#    };
+#
+#subtype 'xsd:gYear',
+#    as 'DateTime';
+#coerce 'xsd:gYear',
+#    from 'Str',
+#    via {
+#        DateTime::Format::Striptime("", $_)
+#    };
+#
+#subtype 'xsd:gMonthDay',
+#    as 'DateTime';
+#coerce 'xsd:gMonthDay',
+#    from 'Str',
+#    via {
+#        DateTime::Format::Striptime("", $_)
+#    };
+#
+#subtype 'xsd:gDay',
+#    as 'DateTime';
+#coerce 'xsd:gDay',
+#    from 'Str',
+#    via {
+#        DateTime::Format::Striptime("", $_)
+#    };
+#
+#subtype 'xsd:gMonth',
+#    as 'DateTime';
+#coerce 'xsd:gMonth',
+#    from 'Str',
+#    via {
+#        DateTime::Format::Striptime("", $_)
+#    };
+
+$SIG{__WARN__} = $sig_warn;
+
+1;
 package My::W3C::SOAP::XSD;
 
 # Created on: 2012-05-26 23:50:44
@@ -1331,7 +1492,7 @@ use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
 use Moose::Util::TypeConstraints;
 use MooseX::Types::XMLSchema;
-use W3C::SOAP::XSD::Types qw/:all/;
+My::W3C::SOAP::XSD::Types->import(':all');
 use TryCatch;
 use DateTime::Format::Strptime qw/strptime/;
 
