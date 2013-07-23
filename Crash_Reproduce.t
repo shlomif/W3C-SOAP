@@ -39,6 +39,151 @@ sub ns2module {
     return $ns;
 }
 
+package My::W3C::SOAP::Document;
+
+# Created on: 2012-05-27 19:26:43
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp qw/carp croak cluck confess longmess/;
+use Scalar::Util;
+use List::Util;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+use TryCatch;
+use URI;
+use W3C::SOAP::Utils qw/normalise_ns ns2module/;
+use XML::LibXML;
+
+our $VERSION     = version->new('0.02');
+
+has string => (
+    is         => 'rw',
+    isa        => 'Str',
+);
+has location => (
+    is         => 'rw',
+    isa        => 'Str',
+);
+has xml => (
+    is       => 'ro',
+    isa      => 'XML::LibXML::Document',
+    required => 1,
+);
+has xpc => (
+    is         => 'ro',
+    isa        => 'XML::LibXML::XPathContext',
+    builder    => '_xpc',
+    clearer    => 'clear_xpc',
+    predicate  => 'has_xpc',
+    lazy_build => 1,
+);
+has target_namespace => (
+    is         => 'rw',
+    isa        => 'Str',
+    builder    => '_target_namespace',
+    predicate  => 'has_target_namespace',
+    lazy_build => 1,
+);
+has ns_module_map => (
+    is        => 'rw',
+    isa       => 'HashRef[Str]',
+    required  => 1,
+    predicate => 'has_ns_module_map',
+);
+has module => (
+    is        => 'rw',
+    isa       => 'Str',
+    predicate => 'has_module',
+    builder   => '_module',
+    lazy_build => 1,
+);
+has module_base => (
+    is        => 'rw',
+    isa       => 'Str',
+    predicate => 'has_module_base',
+);
+
+around BUILDARGS => sub {
+    my ($orig, $class, @args) = @_;
+    my $args
+        = !@args     ? {}
+        : @args == 1 ? $args[0]
+        :              {@args};
+
+    delete $args->{module_base} if ! defined $args->{module_base};
+
+    if ( $args->{string} ) {
+        try {
+            $args->{xml} = XML::LibXML->load_xml(string => $args->{string});
+        }
+        catch($e) {
+            chomp $e;
+            W3C::SOAP::Exception::XML->throw( error => $e, faultstring => $e );
+        }
+    }
+    elsif ( $args->{location} ) {
+        try {
+            $args->{xml} = XML::LibXML->load_xml(location => $args->{location});
+        }
+        catch($e) {
+            chomp $e;
+            W3C::SOAP::Exception::XML->throw( error => $e, faultstring => $args->{location} );
+        }
+    }
+
+    return $class->$orig($args);
+};
+
+sub _xpc {
+    my ($self) = @_;
+    my $xpc = XML::LibXML::XPathContext->new($self->xml);
+    $xpc->registerNs(xs   => 'http://www.w3.org/2001/XMLSchema');
+    $xpc->registerNs(xsd  => 'http://www.w3.org/2001/XMLSchema');
+    $xpc->registerNs(wsdl => 'http://schemas.xmlsoap.org/wsdl/');
+    $xpc->registerNs(wsp  => 'http://schemas.xmlsoap.org/ws/2004/09/policy');
+    $xpc->registerNs(wssp => 'http://www.bea.com/wls90/security/policy');
+    $xpc->registerNs(soap => 'http://schemas.xmlsoap.org/wsdl/soap/');
+
+    return $xpc;
+}
+
+my $anon = 0;
+sub _target_namespace {
+    my ($self) = @_;
+    my $ns  = $self->xml->getDocumentElement->getAttribute('targetNamespace');
+    my $xpc = $self->xpc;
+    $xpc->registerNs(ns => $ns) if $ns;
+
+    $ns ||= $self->location || 'NsAnon' . $anon++;
+
+    return $ns;
+}
+
+sub _module {
+    my ($self) = @_;
+    my $ns = $self->target_namespace;
+
+    if ( $self->has_module_base ) {
+        $self->ns_module_map->{normalise_ns($self->target_namespace)}
+            = $self->module_base . '::' . ns2module($self->target_namespace);
+    }
+
+    if ( !$self->ns_module_map->{normalise_ns($ns)} && $self->ns_module_map->{$ns} ) {
+        $self->ns_module_map->{normalise_ns($ns)} = $self->ns_module_map->{$ns};
+    }
+
+    confess "Trying to get module mappings when none specified!\n" if !$self->has_ns_module_map;
+    confess "No mapping specified for the namespace ", $ns, "!\n"  if !$self->ns_module_map->{normalise_ns($ns)};
+
+    return $self->ns_module_map->{normalise_ns($ns)};
+}
+
 package My::W3C::SOAP::Document::Node;
 
 # Created on: 2012-05-26 19:04:19
@@ -72,7 +217,7 @@ has parent_node => (
 );
 has document => (
     is         => 'rw',
-    isa        => 'W3C::SOAP::Document',
+    isa        => 'My::W3C::SOAP::Document',
     required   => 1,
     builder    => '_document',
     lazy_build => 1,
@@ -105,7 +250,7 @@ around BUILDARGS => sub {
 sub _document {
     my ($self) = shift;
     confess "Lazybuild $self has both no parent_node nore document!\n" if !$self->has_parent_node || !defined $self->parent_node;
-    return $self->parent_node->isa('W3C::SOAP::Document') ? $self->parent_node : $self->parent_node->document;
+    return $self->parent_node->isa('My::W3C::SOAP::Document') ? $self->parent_node : $self->parent_node->document;
 }
 
 sub _name {
@@ -709,7 +854,7 @@ use TryCatch;
 use URI;
 use W3C::SOAP::Utils qw/normalise_ns/;
 
-extends 'W3C::SOAP::Document';
+extends 'My::W3C::SOAP::Document';
 
 our $VERSION     = version->new('0.02');
 
@@ -1110,7 +1255,7 @@ our $VERSION     = version->new('0.02');
 
 has document => (
     is       => 'rw',
-    isa      => 'W3C::SOAP::Document',
+    isa      => 'My::W3C::SOAP::Document',
 );
 has template => (
     is        => 'rw',
@@ -2358,7 +2503,7 @@ use English qw/ -no_match_vars /;
 use Path::Class;
 use XML::LibXML;
 
-extends 'W3C::SOAP::Document';
+extends 'My::W3C::SOAP::Document';
 
 our $VERSION     = version->new('0.02');
 
