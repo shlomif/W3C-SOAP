@@ -2240,6 +2240,58 @@ sub _operations {
     return \@operations;
 }
 
+package My::W3C::SOAP::WSDL::Document::Port;
+
+# Created on: 2012-05-27 19:52:35
+# Create by:  Ivan Wills
+# $Id$
+# $Revision$, $HeadURL$, $Date$
+# $Revision$, $Source$, $Date$
+
+use Moose;
+use warnings;
+use version;
+use Carp;
+use Scalar::Util;
+use List::Util;
+#use List::MoreUtils;
+use Data::Dumper qw/Dumper/;
+use English qw/ -no_match_vars /;
+use W3C::SOAP::Utils qw/split_ns/;
+
+extends 'W3C::SOAP::Document::Node';
+
+our $VERSION     = version->new('0.02');
+
+has binding => (
+    is         => 'rw',
+    isa        => 'W3C::SOAP::WSDL::Document::Binding',
+    builder    => '_binding',
+    lazy_build => 1,
+    weak_ref   => 1,
+);
+has address => (
+    is         => 'rw',
+    isa        => 'Str',
+    builder    => '_address',
+    lazy_build => 1,
+);
+
+sub _binding {
+    my ($self) = @_;
+    my ($ns, $name) = split_ns($self->node->getAttribute('binding'));
+
+    for my $binding (@{ $self->document->bindings }) {
+        return $binding if $binding->name eq $name;
+    }
+}
+
+sub _address {
+    my ($self) = @_;
+    my ($address) = $self->document->xpc->findnodes('soap:address', $self->node);
+    return $address->getAttribute('location');
+}
+
 package My::W3C::SOAP::WSDL::Document::Service;
 
 # Created on: 2012-05-27 19:25:41
@@ -2257,7 +2309,6 @@ use List::Util;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
-use W3C::SOAP::WSDL::Document::Port;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -2265,7 +2316,7 @@ our $VERSION     = version->new('0.02');
 
 has ports => (
     is         => 'rw',
-    isa        => 'ArrayRef[W3C::SOAP::WSDL::Document::Port]',
+    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::Port]',
     builder    => '_ports',
     lazy_build => 1,
 );
@@ -2276,7 +2327,7 @@ sub _ports {
     my @nodes = $self->document->xpc->findnodes('wsdl:port', $self->node);
 
     for my $node (@nodes) {
-        push @complex_types, W3C::SOAP::WSDL::Document::Port->new(
+        push @complex_types, My::W3C::SOAP::WSDL::Document::Port->new(
             parent_node   => $self,
             node     => $node,
         );
