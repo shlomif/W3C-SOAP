@@ -60,7 +60,6 @@ use XML::LibXML;
 use WWW::Mechanize;
 use TryCatch;
 use URI;
-use W3C::SOAP::Exception;
 use W3C::SOAP::XSD::Document::Element;
 use W3C::SOAP::XSD::Document::ComplexType;
 use W3C::SOAP::XSD::Document::SimpleType;
