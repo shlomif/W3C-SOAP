@@ -56,7 +56,7 @@ use List::Util;
 #use List::MoreUtils;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
-use W3C::SOAP::Utils qw/split_ns xml_error/;
+use W3C::SOAP::Utils qw/xml_error/;
 
 extends 'W3C::SOAP::XSD::Document::Type';
 
@@ -146,7 +146,7 @@ sub _type {
 sub _package {
     my ($self) = @_;
     my $type = $self->type;
-    my ($ns, $name) = split_ns($type);
+    my ($ns, $name) = MyW3C::Utils::split_ns($type);
     $ns ||= $self->document->ns_name;
     my $ns_uri = $name ? $self->document->get_ns_uri($ns, $self->node) : '';
     $name ||= $ns;
@@ -188,7 +188,7 @@ sub module {
 
 sub type_module {
     my ($self) = @_;
-    my ($ns, $type) = split_ns($self->type);
+    my ($ns, $type) = MyW3C::Utils::split_ns($self->type);
     $ns ||= $self->document->ns_name;
     my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
 
@@ -198,7 +198,7 @@ sub type_module {
 sub simple_type {
     my ($self) = @_;
     $self->document->simple_type();
-    my ($ns, $type) = split_ns($self->type);
+    my ($ns, $type) = MyW3C::Utils::split_ns($self->type);
     $ns ||= $self->document->ns_name;
     return "xs:$type"
         if $self->document->ns_map->{$ns}
@@ -228,7 +228,7 @@ sub simple_type {
 sub very_simple_type {
     my ($self) = @_;
     $self->document->simple_type();
-    my ($ns, $type) = split_ns($self->type);
+    my ($ns, $type) = MyW3C::Utils::split_ns($self->type);
     $ns ||= $self->document->ns_name;
     return "xs:$type" if $self->document->ns_map->{$ns} && $self->document->ns_map->{$ns} eq 'http://www.w3.org/2001/XMLSchema';
 
@@ -254,7 +254,7 @@ sub very_simple_type {
 
 sub moosex_type {
     my ($self) = @_;
-    my ($ns, $type) = split_ns($self->type);
+    my ($ns, $type) = MyW3C::Utils::split_ns($self->type);
     $ns ||= $self->document->ns_name;
     my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
     warn "Simple type missing a type for '".$self->type."'\n".xml_error($self->node)."\n"
