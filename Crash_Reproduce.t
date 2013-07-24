@@ -403,31 +403,22 @@ has type => (
     builder    => '_type',
     lazy_build => 1,
 );
-has enumeration => (
-    is         => 'rw',
-    isa        => 'ArrayRef[Str]',
-    builder    => '_enumeration',
-    lazy_build => 1,
-);
 has maxLength => (
     is         => 'rw',
     isa        => 'Maybe[Int]',
     builder    => '_minLength',
-    predicate  => 'has_minLength',
     lazy_build => 1,
 );
 has minLength => (
     is         => 'rw',
     isa        => 'Maybe[Int]',
     builder    => '_maxLength',
-    predicate  => 'has_maxLength',
     lazy_build => 1,
 );
 has length => (
     is         => 'rw',
     isa        => 'Maybe[Int]',
     builder    => '_length',
-    predicate  => 'has_length',
     lazy_build => 1,
 );
 
@@ -436,18 +427,6 @@ sub _type {
     my ($restriction) = $self->document->xpc->findnodes('xsd:restriction', $self->node);
 
     return $restriction->getAttribute('base');
-}
-
-sub _enumeration {
-    my ($self) = @_;
-    my @nodes = $self->document->xpc->findnodes('xsd:restriction/xsd:enumeration', $self->node);
-    my @enumeration;
-
-    for my $node (@nodes) {
-        push @enumeration, $node->getAttribute('value');
-    }
-
-    return \@enumeration;
 }
 
 sub _maxLength { return shift->_build_restriction('maxLength') }
