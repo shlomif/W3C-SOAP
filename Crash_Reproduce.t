@@ -616,13 +616,6 @@ has enumeration => (
     builder    => '_enumeration',
     lazy_build => 1,
 );
-has pattern => (
-    is         => 'rw',
-    isa        => 'Maybe[Str]',
-    builder    => '_pattern',
-    predicate  => 'has_pattern',
-    lazy_build => 1,
-);
 has maxLength => (
     is         => 'rw',
     isa        => 'Maybe[Int]',
@@ -664,7 +657,6 @@ sub _enumeration {
     return \@enumeration;
 }
 
-sub _pattern   { return shift->_build_restriction('pattern')   }
 sub _maxLength { return shift->_build_restriction('maxLength') }
 sub _minLength { return shift->_build_restriction('minLength') }
 sub _length    { return shift->_build_restriction('length')    }
