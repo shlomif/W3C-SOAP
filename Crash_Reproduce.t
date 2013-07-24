@@ -1880,9 +1880,6 @@ sub dynamic_classes {
             $self->complex_type_package($xsd, $type, $type_module, [ keys %modules ]);
         }
 
-        # elements package
-        $self->elements_package($xsd, $module);
-
         push @packages, $module;
     }
 
@@ -1931,27 +1928,6 @@ sub complex_type_package {
     );
 
     for my $node (@{ $type->sequence }) {
-        $self->element_attributes($class, $class_name, $node);
-    }
-
-    return $class;
-}
-
-sub elements_package {
-    my ($self, $xsd, $class_name) = @_;
-
-    my $class = Moose::Meta::Class->create(
-        $class_name,
-        superclasses => [ 'My::W3C::SOAP::XSD' ],
-    );
-
-    $class->add_attribute(
-        '+xsd_ns',
-        default  => $xsd->target_namespace,
-        required => 1,
-    );
-
-    for my $node (@{ $xsd->elements }) {
         $self->element_attributes($class, $class_name, $node);
     }
 
