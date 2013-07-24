@@ -1882,19 +1882,6 @@ sub _type {
     return $type;
 }
 
-package My::W3C::SOAP::WSDL::Document::Service;
-
-# Created on: 2012-05-27 19:25:41
-# Create by:  Ivan Wills
-# $Id$
-# $Revision$, $HeadURL$, $Date$
-# $Revision$, $Source$, $Date$
-
-use Moose;
-use Carp;
-
-extends 'My::W3C::SOAP::Document::Node';
-
 package My::W3C::SOAP::WSDL::Document;
 
 # Created on: 2012-05-27 18:57:29
@@ -1921,19 +1908,6 @@ has message => (
     is         => 'rw',
     isa        => 'HashRef[My::W3C::SOAP::WSDL::Document::Message]',
     builder    => '_message',
-    lazy_build => 1,
-    weak_ref   => 1,
-);
-has services => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::Service]',
-    builder    => '_services',
-    lazy_build => 1,
-);
-has service => (
-    is         => 'rw',
-    isa        => 'HashRef[My::W3C::SOAP::WSDL::Document::Service]',
-    builder    => '_service',
     lazy_build => 1,
     weak_ref   => 1,
 );
@@ -1974,31 +1948,6 @@ sub _message {
     }
 
     return \%message;
-}
-
-sub _services {
-    my ($self) = @_;
-    my @services;
-    my @nodes = $self->xpc->findnodes('//wsdl:service');
-
-    for my $node (@nodes) {
-        push @services, My::W3C::SOAP::WSDL::Document::Service->new(
-            document => $self,
-            node   => $node,
-        );
-    }
-
-    return \@services;
-}
-
-sub _service {
-    my ($self) = @_;
-    my %service;
-    for my $service ( @{ $self->service }) {
-        $service{$service->name} = $service;
-    }
-
-    return \%service;
 }
 
 sub _schemas {
