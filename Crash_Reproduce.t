@@ -44,22 +44,18 @@ has xpc => (
     is         => 'ro',
     isa        => 'XML::LibXML::XPathContext',
     builder    => '_xpc',
-    clearer    => 'clear_xpc',
-    predicate  => 'has_xpc',
     lazy_build => 1,
 );
 has target_namespace => (
     is         => 'rw',
     isa        => 'Str',
     builder    => '_target_namespace',
-    predicate  => 'has_target_namespace',
     lazy_build => 1,
 );
 has ns_module_map => (
     is        => 'rw',
     isa       => 'HashRef[Str]',
     required  => 1,
-    predicate => 'has_ns_module_map',
 );
 has module_base => (
     is        => 'rw',
