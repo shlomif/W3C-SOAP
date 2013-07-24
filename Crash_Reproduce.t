@@ -323,12 +323,6 @@ has min_occurs => (
     builder => '_min_occurs',
     lazy_build => 1,
 );
-has nillable => (
-    is     => 'rw',
-    isa    => 'Bool',
-    builder => '_nillable',
-    lazy_build => 1,
-);
 has choice_group => (
     is     => 'rw',
     isa    => 'Int',
@@ -381,16 +375,6 @@ sub _max_occurs {
 sub _min_occurs {
     my ($self) = @_;
     return $self->node->getAttribute('minOccurs') || 0;
-}
-
-sub _nillable {
-    my ($self) = @_;
-    my $nillable = $self->node->getAttribute('nillable');
-
-    return !$nillable          ? 1
-        : $nillable eq 'true'  ? 1
-        : $nillable eq 'false' ? 0
-        :                        die "Unknown value for attribute nillable in ".$self->node->toString;
 }
 
 sub module {
