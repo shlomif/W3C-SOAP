@@ -389,18 +389,6 @@ has type => (
     builder    => '_type',
     lazy_build => 1,
 );
-has maxLength => (
-    is         => 'rw',
-    isa        => 'Maybe[Int]',
-    builder    => '_minLength',
-    lazy_build => 1,
-);
-has minLength => (
-    is         => 'rw',
-    isa        => 'Maybe[Int]',
-    builder    => '_maxLength',
-    lazy_build => 1,
-);
 has length => (
     is         => 'rw',
     isa        => 'Maybe[Int]',
@@ -415,8 +403,6 @@ sub _type {
     return $restriction->getAttribute('base');
 }
 
-sub _maxLength { return shift->_build_restriction('maxLength') }
-sub _minLength { return shift->_build_restriction('minLength') }
 sub _length    { return shift->_build_restriction('length')    }
 sub _build_restriction {
     my ($self, $type) = @_;
