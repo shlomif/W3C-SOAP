@@ -120,7 +120,6 @@ has document => (
 has name => (
     is         => 'rw',
     isa        => 'Maybe[Str]',
-    predicate  => 'has_name',
     builder    => '_name',
     lazy_build => 1,
 );
