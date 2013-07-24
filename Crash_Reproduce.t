@@ -375,60 +375,6 @@ sub moose_type {
     return $self->document->module . ':' . $self->name;
 }
 
-package My::W3C::SOAP::XSD::Document::ComplexType;
-
-# Created on: 2012-05-26 19:04:25
-# Create by:  Ivan Wills
-# $Id$
-# $Revision$, $HeadURL$, $Date$
-# $Revision$, $Source$, $Date$
-
-use Moose;
-
-extends 'My::W3C::SOAP::XSD::Document::Node';
-
-
-has sequence => (
-    is      => 'rw',
-    isa     => 'ArrayRef[My::W3C::SOAP::XSD::Document::Element]',
-    builder => '_sequence',
-    lazy_build => 1,
-);
-
-sub _sequence {
-    my ($self) = @_;
-    my ($node) = $self->document->xpc->findnodes('xsd:complexContent/xsd:extension', $self->node);
-    return $self->_get_sequence_elements($node || $self->node);
-}
-
-sub _get_sequence_elements {
-    my ($self, $node) = @_;
-    my @nodes = $self->document->xpc->findnodes('xsd:sequence/*', $node);
-    my @sequence;
-
-    for my $node (@nodes) {
-        if ( $node->nodeName =~ /(?:^|:)element$/ ) {
-            push @sequence, My::W3C::SOAP::XSD::Document::Element->new(
-                parent_node => $self,
-                node   => $node,
-            );
-        }
-        elsif ( $node->nodeName =~ /(?:^|:)choice$/ ) {
-            my @choices = $self->document->xpc->findnodes('xsd:element', $node);
-            for my $choice (@choices) {
-                push @sequence, My::W3C::SOAP::XSD::Document::Element->new(
-                    parent_node  => $self,
-                    node         => $choice,
-                );
-            }
-        }
-    }
-
-    return \@sequence;
-}
-
-1;
-
 package My::W3C::SOAP::XSD::Document;
 
 # Created on: 2012-05-26 15:46:31
