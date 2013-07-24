@@ -496,12 +496,6 @@ has anon_simple_type_count => (
     default => -1,
     handles => { simple_type_count => 'inc' },
 );
-has complex_types => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document::ComplexType]',
-    builder    => '_complex_types',
-    lazy_build => 1,
-);
 has complex_type => (
     is         => 'rw',
     isa        => 'HashRef[My::W3C::SOAP::XSD::Document::ComplexType]',
@@ -601,26 +595,8 @@ sub _simple_type {
     return \%simple_type;
 }
 
-sub _complex_types {
-    return [];
-}
-
 sub _complex_type {
-    my ($self) = @_;
-    my %complex_type;
-    for my $type (@{ $self->complex_types }) {
-        my $name = $type->name;
-        if ( !$name ) {
-            my $parent = $type->node->parentNode;
-            $name = $parent->getAttribute('name');
-            $name = $name ? $name . 'Type' : 'Anon'.$self->complex_type_count;
-            $type->name($name);
-        }
-        Carp::confess "No name for complex type ".$type->node->parentNode->toString if !$name;
-        $complex_type{$name} = $type;
-    }
-
-    return \%complex_type;
+    return +{};
 }
 
 sub _ns_name {
