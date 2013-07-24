@@ -1614,64 +1614,6 @@ sub _message {
     }
 }
 
-package My::W3C::SOAP::WSDL::Document::Operation;
-
-# Created on: 2012-05-28 07:03:06
-# Create by:  Ivan Wills
-# $Id$
-# $Revision$, $HeadURL$, $Date$
-# $Revision$, $Source$, $Date$
-
-use Moose;
-use Carp;
-
-extends 'My::W3C::SOAP::Document::Node';
-
-
-has action => (
-    is         => 'rw',
-    isa        => 'Str',
-    builder    => '_action',
-    lazy_build => 1,
-);
-has inputs => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::InOutPuts]',
-    builder    => '_inputs',
-    lazy_build => 1,
-);
-has outputs => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::InOutPuts]',
-    builder    => '_outputs',
-    lazy_build => 1,
-);
-
-sub _action {
-    my ($self) = @_;
-    my $action = $self->node->getAttribute('soapAction');
-    return $action if $action;
-    my ($child) = $self->document->xpc->findnode('soap:binding'. $self->node);
-    return $child->getAttribute('soapAction');
-}
-
-sub _inputs  { return $_[0]->_in_out_puts('input');  }
-sub _outputs { return $_[0]->_in_out_puts('output'); }
-sub _in_out_puts {
-    my ($self, $dir) = @_;
-    my @puts;
-    my @nodes = $self->document->xpc->findnodes("wsdl:$dir", $self->node);
-
-    for my $node (@nodes) {
-        push @puts, My::W3C::SOAP::WSDL::Document::InOutPuts->new(
-            parent_node => $self,
-            node        => $node,
-        );
-    }
-
-    return \@puts;
-}
-
 package My::W3C::SOAP::WSDL::Document::Message;
 
 # Created on: 2012-05-27 19:25:15
