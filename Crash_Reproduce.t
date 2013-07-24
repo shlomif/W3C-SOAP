@@ -1853,9 +1853,6 @@ sub dynamic_classes {
     for my $xsd (@ordered_xsds) {
         my $module = $xsd->module;
 
-        # Create simple types
-        $self->simple_type_package($xsd);
-
         # Complex types
         my @complex_types = @{ $xsd->complex_types };
         while ( my $type = shift @complex_types ) {
@@ -1884,33 +1881,6 @@ sub dynamic_classes {
     }
 
     return @packages;
-}
-
-sub simple_type_package {
-    my ($self, $xsd) = @_;
-
-    for my $subtype (@{ $xsd->simple_types }) {
-        next if !$subtype->name;
-
-        # Setup base simple types
-        if ( @{ $subtype->enumeration } ) {
-            enum(
-                $subtype->moose_type
-                => $subtype->enumeration
-            );
-        }
-        else {
-            subtype $subtype->moose_type =>
-                as $subtype->moose_base_type;
-        }
-
-        # Add coercion from XML::LibXML nodes
-        coerce $subtype->moose_type =>
-            from 'XML::LibXML::Node' =>
-            via { $_->textContent };
-    }
-
-    return;
 }
 
 sub complex_type_package {
