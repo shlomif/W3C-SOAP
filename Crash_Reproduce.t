@@ -2721,38 +2721,6 @@ has location => (
     isa => 'Str',
 );
 
-sub get_xsd {
-    my ($self) = @_;
-
-    my @args;
-    push @args, ( template      => $self->template ) if $self->has_template;
-    push @args, ( lib           => $self->lib      ) if $self->has_lib     ;
-    if ( $self->has_module_base ) {
-        my $base = $self->module_base;
-        $base =~ s/WSDL/XSD/;
-        $base .= '::XSD' if ! $base =~ /XSD/;
-        push @args, ( module_base => $base );
-    }
-
-    my $parse = My::W3C::SOAP::XSD::Parser->new(
-        document      => [],
-        ns_module_map => $self->ns_module_map,
-        @args,
-    );
-
-    for my $xsd (@{ $self->document->schemas }) {
-        $xsd->ns_module_map($self->ns_module_map);
-        $xsd->clear_xpc;
-
-        push @{ $parse->document }, $xsd;
-
-        $parse->document->[-1]->target_namespace($self->document->target_namespace)
-            if !$parse->document->[-1]->has_target_namespace;
-    }
-
-    return $parse;
-}
-
 package main;
 
 # set up templates
