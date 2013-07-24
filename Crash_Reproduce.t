@@ -2483,49 +2483,6 @@ sub get_nsuri {
     return $node->value;
 }
 
-package My::W3C::SOAP::WSDL::Meta::Method;
-
-# Created on: 2012-07-15 19:45:13
-# Create by:  Ivan Wills
-# $Id$
-# $Revision$, $HeadURL$, $Date$
-# $Revision$, $Source$, $Date$
-
-use Moose;
-use Carp;
-
-extends 'Moose::Meta::Method';
-
-
-has wsdl_operation => (
-    is        => 'rw',
-    isa       => 'Str',
-    required  => 1,
-    predicate => 'has_wsdl_operation',
-);
-has in_class => (
-    is        => 'rw',
-    isa       => 'Str',
-    predicate => 'has_in_class',
-);
-has in_attribute => (
-    is        => 'rw',
-    isa       => 'Str',
-    default   => 0,
-    predicate => 'has_in_attribute',
-);
-has out_class => (
-    is        => 'rw',
-    isa       => 'Str',
-    default   => 1,
-    predicate => 'has_out_class',
-);
-has out_attribute => (
-    is        => 'rw',
-    isa       => 'Str',
-    predicate => 'has_out_attribute',
-);
-
 package My::W3C::SOAP::WSDL::Parser;
 
 # Created on: 2012-05-27 18:58:29
