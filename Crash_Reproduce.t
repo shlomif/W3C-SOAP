@@ -1058,12 +1058,6 @@ sub _schema {
     return \%schema;
 }
 
-sub get_nsuri {
-    my ($self, $ns) = @_;
-    my ($node) = $self->xpc->findnodes("//namespace::*[name()='$ns']");
-    return $node->value;
-}
-
 package My::W3C::SOAP::WSDL::Parser;
 
 use Moose;
