@@ -210,12 +210,6 @@ use Carp;
 extends 'My::W3C::SOAP::XSD::Document::Node';
 
 
-has complex_type => (
-    is     => 'rw',
-    isa    => 'Str',
-    builder => '_complex_type',
-    lazy_build => 1,
-);
 has type => (
     is     => 'rw',
     isa    => 'Str',
@@ -235,17 +229,6 @@ has min_occurs => (
     builder => '_min_occurs',
     lazy_build => 1,
 );
-
-sub _complex_type {
-    my ($self) = @_;
-    my $complex;
-    my @nodes = $self->document->xpc->findnodes('xsd:complexType', $self->node);
-
-    for my $node (@nodes) {
-    }
-
-    return $complex;
-}
 
 sub _type {
     my ($self) = @_;
@@ -350,15 +333,6 @@ sub has_anonymous {
     my $simple = $self->document->simple_type;
     for my $type (keys %{$simple}) {
         my  $type_name = $simple->{$type}->node->parentNode->getAttribute('name');
-        if ( $type_name && $self->name && $type_name eq $self->name ) {
-            return $map{$self->document->target_namespace} . ':' . $type;
-        }
-        $type_name ||= '';
-    }
-
-    my $complex = $self->document->complex_type;
-    for my $type (keys %{$complex}) {
-        my  $type_name = $complex->{$type}->node->parentNode->getAttribute('name');
         if ( $type_name && $self->name && $type_name eq $self->name ) {
             return $map{$self->document->target_namespace} . ':' . $type;
         }
@@ -496,12 +470,6 @@ has anon_simple_type_count => (
     default => -1,
     handles => { simple_type_count => 'inc' },
 );
-has complex_type => (
-    is         => 'rw',
-    isa        => 'HashRef[My::W3C::SOAP::XSD::Document::ComplexType]',
-    builder    => '_complex_type',
-    lazy_build => 0,
-);
 has anon_complex_type_count => (
     is      => 'ro',
     isa     => 'Int',
@@ -593,10 +561,6 @@ sub _simple_type {
     }
 
     return \%simple_type;
-}
-
-sub _complex_type {
-    return +{};
 }
 
 sub _ns_name {
