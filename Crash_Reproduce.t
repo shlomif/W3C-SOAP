@@ -170,15 +170,6 @@ sub _name {
     return $self->node->getAttribute('name');
 }
 
-sub perl_name {
-    my ($self) = @_;
-    my $name = $self->name;
-    return if !$name;
-
-    $name =~ s/ (?<= [^A-Z_] ) ([A-Z]) /_$1/gxms;
-    return lc $name;
-}
-
 package My::W3C::SOAP::XSD::Document::Node;
 
 # Created on: 2012-05-26 19:04:19
