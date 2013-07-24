@@ -222,12 +222,6 @@ sub _type {
     return $restriction->getAttribute('base');
 }
 
-sub moose_type {
-    my ($self) = @_;
-
-    return $self->document->module . ':' . $self->name;
-}
-
 package My::W3C::SOAP::XSD::Document;
 
 # Created on: 2012-05-26 15:46:31
