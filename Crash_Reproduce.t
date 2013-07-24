@@ -2708,14 +2708,8 @@ extends 'My::W3C::SOAP::Parser';
 has '+document' => (
     isa      => 'My::W3C::SOAP::WSDL::Document',
     required => 1,
-    handles  => {
-        module          => 'module',
-        has_module      => 'has_module',
-        ns_module_map   => 'ns_module_map',
-        module_base     => 'module_base',
-        has_module_base => 'has_module_base',
-    },
 );
+
 has location => (
     is  => 'rw',
     isa => 'Str',
