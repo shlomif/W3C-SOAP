@@ -1882,19 +1882,6 @@ sub _type {
     return $type;
 }
 
-package My::W3C::SOAP::WSDL::Document::Port;
-
-# Created on: 2012-05-27 19:52:35
-# Create by:  Ivan Wills
-# $Id$
-# $Revision$, $HeadURL$, $Date$
-# $Revision$, $Source$, $Date$
-
-use Moose;
-use Carp;
-
-extends 'My::W3C::SOAP::Document::Node';
-
 package My::W3C::SOAP::WSDL::Document::Service;
 
 # Created on: 2012-05-27 19:25:41
@@ -1907,29 +1894,6 @@ use Moose;
 use Carp;
 
 extends 'My::W3C::SOAP::Document::Node';
-
-
-has ports => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::Port]',
-    builder    => '_ports',
-    lazy_build => 1,
-);
-
-sub _ports {
-    my ($self) = @_;
-    my @complex_types;
-    my @nodes = $self->document->xpc->findnodes('wsdl:port', $self->node);
-
-    for my $node (@nodes) {
-        push @complex_types, My::W3C::SOAP::WSDL::Document::Port->new(
-            parent_node   => $self,
-            node     => $node,
-        );
-    }
-
-    return \@complex_types;
-}
 
 package My::W3C::SOAP::WSDL::Document;
 
