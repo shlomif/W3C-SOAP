@@ -190,20 +190,6 @@ use Moose;
 
 extends 'My::W3C::SOAP::XSD::Document::Node';
 
-has type => (
-    is         => 'rw',
-    isa        => 'Str',
-    builder    => '_type',
-    lazy_build => 1,
-);
-
-sub _type {
-    my ($self) = @_;
-    my ($restriction) = $self->document->xpc->findnodes('xsd:restriction', $self->node);
-
-    return $restriction->getAttribute('base');
-}
-
 package My::W3C::SOAP::XSD::Document;
 
 # Created on: 2012-05-26 15:46:31
