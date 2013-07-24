@@ -270,13 +270,6 @@ has anon_complex_type_count => (
     default => -1,
     handles => { complex_type_count => 'inc' },
 );
-has ns_map => (
-    is         => 'rw',
-    isa        => 'HashRef[Str]',
-    predicate  => 'has_ns_map',
-    builder    => '_ns_map',
-    lazy_build => 1,
-);
 
 sub _imports {
     my ($self) = @_;
@@ -348,29 +341,6 @@ sub _simple_type {
     }
 
     return \%simple_type;
-}
-
-sub _ns_map {
-    my ($self) = @_;
-
-    my %map
-        = map {$_->name =~ /^xmlns:?(.*)$/; ($1 => $_->value)}
-        grep { $_->name =~ /^xmlns/ }
-        $self->xml->getDocumentElement->getAttributes;
-
-    my %rev;
-    for my $name ( keys %map ) {
-        $rev{$map{$name}} ||= $name;
-    }
-    if ( $rev{$self->target_namespace} && $map{''} && $map{''} eq $self->target_namespace ) {
-        delete $map{''};
-    }
-
-    my $ns = $self->target_namespace;
-    $ns =~ s/:/_/g;
-    $map{$ns} = $self->target_namespace if !$rev{$self->target_namespace};
-
-    return \%map;
 }
 
 package My::W3C::SOAP::WSDL::Document::Message;
