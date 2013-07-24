@@ -1517,10 +1517,6 @@ use Path::Class;
 use File::ShareDir qw/dist_dir/;
 use Moose::Util::TypeConstraints;
 
-Moose::Exporter->setup_import_methods(
-    as_is => ['load_xsd'],
-);
-
 extends 'My::W3C::SOAP::Parser';
 
 
@@ -1569,16 +1565,6 @@ sub get_schemas {
     }
 
     return @xsds;
-}
-
-sub load_xsd {
-    my ($location) = @_;
-    my $parser = __PACKAGE__->new(
-        location      => $location,
-        ns_module_map => {},
-    );
-
-    return $parser->dynamic_classes;
 }
 
 sub dynamic_classes {
