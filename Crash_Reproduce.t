@@ -2090,12 +2090,6 @@ has outputs => (
     builder    => '_outputs',
     lazy_build => 1,
 );
-has faults => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::InOutPuts]',
-    builder    => '_faults',
-    lazy_build => 1,
-);
 
 sub _style {
     my ($self) = @_;
@@ -2115,7 +2109,6 @@ sub _action {
 
 sub _inputs  { return $_[0]->_in_out_puts('input');  }
 sub _outputs { return $_[0]->_in_out_puts('output'); }
-sub _faults  { return $_[0]->_in_out_puts('fault');  }
 sub _in_out_puts {
     my ($self, $dir) = @_;
     my @puts;
@@ -2609,16 +2602,6 @@ has out_attribute => (
     is        => 'rw',
     isa       => 'Str',
     predicate => 'has_out_attribute',
-);
-has faults => (
-    is        => 'rw',
-    isa       => 'ArrayRef[HashRef]',
-    predicate => 'has_faults',
-);
-has security => (
-    is        => 'rw',
-    isa       => 'Str',
-    predicate => 'has_security',
 );
 
 package My::W3C::SOAP::WSDL::Parser;
