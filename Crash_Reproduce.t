@@ -2887,24 +2887,6 @@ sub get_xsd {
     return $parse;
 }
 
-my %cache;
-sub load_wsdl {
-    my ($location) = @_;
-
-    return $cache{$location} if $cache{$location};
-
-    my $parser = __PACKAGE__->new(
-        location => $location,
-        ns_module_map => {},
-    );
-
-    my $class = $parser->dynamic_classes;
-
-    return $cache{$location} = $class->new;
-}
-
-1;
-
 package main;
 
 # set up templates
