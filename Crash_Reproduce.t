@@ -1910,12 +1910,6 @@ has transport => (
     builder    => '_transport',
     lazy_build => 1,
 );
-has operations => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::Operation]',
-    builder    => '_operations',
-    lazy_build => 1,
-);
 
 sub _style {
     my ($self) = @_;
@@ -1931,21 +1925,6 @@ sub _transport {
     return $transport if $transport;
     my ($child) = $self->document->xpc->findnode('soap:binding'. $self->node);
     return $child->getAttribute('transport');
-}
-
-sub _operations {
-    my ($self) = @_;
-    my @operations;
-    my @nodes = $self->document->xpc->findnodes('wsdl:operation', $self->node);
-
-    for my $node (@nodes) {
-        push @operations, My::W3C::SOAP::WSDL::Document::Operation->new(
-            parent_node   => $self,
-            node     => $node,
-        );
-    }
-
-    return \@operations;
 }
 
 package My::W3C::SOAP::WSDL::Document::Message;
@@ -2022,29 +2001,6 @@ use Moose;
 use Carp;
 
 extends 'My::W3C::SOAP::Document::Node';
-
-
-has operations => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::Operation]',
-    builder    => '_operations',
-    lazy_build => 1,
-);
-
-sub _operations {
-    my ($self) = @_;
-    my @operations;
-    my @nodes = $self->document->xpc->findnodes('wsdl:operation', $self->node);
-
-    for my $node (@nodes) {
-        push @operations, My::W3C::SOAP::WSDL::Document::Operation->new(
-            parent_node   => $self,
-            node     => $node,
-        );
-    }
-
-    return \@operations;
-}
 
 package My::W3C::SOAP::WSDL::Document::Port;
 
