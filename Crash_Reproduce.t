@@ -182,12 +182,6 @@ use URI;
 extends 'My::W3C::SOAP::Document';
 
 
-has imports => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document]',
-    builder    => '_imports',
-    lazy_build => 1,
-);
 has simple_types => (
     is         => 'rw',
     isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document::Node]',
@@ -207,42 +201,6 @@ has anon_simple_type_count => (
     default => -1,
     handles => { simple_type_count => 'inc' },
 );
-
-sub _imports {
-    my ($self) = @_;
-    my @imports;
-    my @nodes = $self->xpc->findnodes('//xsd:import');
-
-    for my $import (@nodes) {
-        next if $import->getAttribute('namespace') && $import->getAttribute('namespace') eq 'http://www.w3.org/2001/XMLSchema';
-
-        my $location = $import->getAttribute('schemaLocation');
-        if ($location) {
-
-            if ( $self->location && (
-                    $self->location =~ m{^(?:https?|ftp)://}
-                    || (
-                        -f $self->location
-                        && !-f $location
-                    )
-                )
-            ) {
-                my $current_location
-                    = -f $self->location
-                    ? file($self->location)->absolute . ''
-                    : $self->location;
-
-                $location = URI->new_abs($location, $current_location)->as_string;
-            }
-
-            push @imports, __PACKAGE__->new(
-                location      => $location,
-            );
-        }
-    }
-
-    return \@imports;
-}
 
 sub _simple_types {
     my ($self) = @_;
@@ -278,18 +236,6 @@ sub _simple_type {
     return \%simple_type;
 }
 
-package My::W3C::SOAP::WSDL::Document::Message;
-
-# Created on: 2012-05-27 19:25:15
-# Create by:  Ivan Wills
-# $Id$
-# $Revision$, $HeadURL$, $Date$
-# $Revision$, $Source$, $Date$
-
-use Moose;
-
-extends 'My::W3C::SOAP::Document::Node';
-
 package My::W3C::SOAP::WSDL::Document;
 
 # Created on: 2012-05-27 18:57:29
@@ -307,7 +253,7 @@ extends 'My::W3C::SOAP::Document';
 
 has messages => (
     is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::Message]',
+    isa        => 'ArrayRef[My::W3C::SOAP::Document::Node]',
     builder    => '_messages',
     lazy_build => 1,
 );
@@ -324,7 +270,7 @@ sub _messages {
     my @nodes = $self->xpc->findnodes('//wsdl:message');
 
     for my $node (@nodes) {
-        push @messages, My::W3C::SOAP::WSDL::Document::Message->new(
+        push @messages, My::W3C::SOAP::Document::Node->new(
             document => $self,
             node   => $node,
         );
