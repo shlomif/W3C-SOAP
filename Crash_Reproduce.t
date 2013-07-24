@@ -2621,23 +2621,6 @@ sub get_nsuri {
     return $node->value;
 }
 
-sub xsd_modules {
-    my ($self) = @_;
-    my %modules;
-
-    for my $service (@{ $self->services }) {
-        for my $port (@{ $service->ports }) {
-            for my $operation (@{ $port->binding->operations }) {
-                if ( $operation->port_type->outputs->[0] && $operation->port_type->outputs->[0]->message->element ) {
-                    $modules{$operation->port_type->outputs->[0]->message->element->module}++;
-                }
-            }
-        }
-    }
-
-    return ( sort keys %modules );
-}
-
 package My::W3C::SOAP::WSDL::Meta::Method;
 
 # Created on: 2012-07-15 19:45:13
