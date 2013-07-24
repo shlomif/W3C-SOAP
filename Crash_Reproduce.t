@@ -436,31 +436,6 @@ sub very_simple_type {
     return;
 }
 
-sub moosex_type {
-    my ($self) = @_;
-    my ($ns, $type) = My::W3C::SOAP::Utils::split_ns($self->type);
-    $ns ||= $self->document->ns_name;
-    my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
-    warn "Simple type missing a type for '".$self->type."'\n"
-        if !$ns && $ns_uri ne 'http://www.w3.org/2001/XMLSchema';
-
-    return "'xs:$type'" if $ns_uri eq 'http://www.w3.org/2001/XMLSchema';
-
-    my @xsds = ($self->document);
-    while ( my $xsd = shift @xsds ) {
-        my $simple = $xsd->simple_type;
-        if ( !$simple && @{ $xsd->simple_types } ) {
-            $simple = $xsd->simple_type($xsd->_simple_type);
-            #warn $xsd->target_namespace . " $type => $simple\n" if $type eq 'GetCreateUIDResponseDto';
-        }
-
-        return $simple->{$type}->moosex_type if $simple && $simple->{$type};
-
-        push @xsds, @{$xsd->imports};
-    }
-    return;
-}
-
 sub has_anonymous {
     my ($self) = @_;
     return if $self->has_type && $self->type;
@@ -572,13 +547,6 @@ sub moose_type {
     my $type = $self->document->module . ':' . $self->name;
 
     return $type;
-}
-
-sub moosex_type {
-    my ($self) = @_;
-
-    warn "No name for ".$self->node->toString if !$self->name;
-    return $self->name;
 }
 
 package My::W3C::SOAP::XSD::Document::ComplexType;
