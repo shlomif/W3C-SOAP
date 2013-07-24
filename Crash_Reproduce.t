@@ -42,11 +42,6 @@ has target_namespace => (
     builder    => '_target_namespace',
     lazy_build => 1,
 );
-has module_base => (
-    is        => 'rw',
-    isa       => 'Str',
-    predicate => 'has_module_base',
-);
 
 around BUILDARGS => sub {
     my ($orig, $class, @args) = @_;
@@ -54,8 +49,6 @@ around BUILDARGS => sub {
         = !@args     ? {}
         : @args == 1 ? $args[0]
         :              {@args};
-
-    delete $args->{module_base} if ! defined $args->{module_base};
 
     if ( $args->{string} ) {
         $args->{xml} = XML::LibXML->load_xml(string => $args->{string});
@@ -244,7 +237,6 @@ sub _imports {
 
             push @imports, __PACKAGE__->new(
                 location      => $location,
-                module_base   => $self->module_base,
             );
         }
     }
@@ -374,17 +366,8 @@ sub _schemas {
             $node->setAttribute( $ns->name, $ns->value );
         }
 
-        my @args;
-        if ( $self->has_module_base ) {
-            my $base = $self->module_base;
-            $base =~ s/WSDL/XSD/;
-            $base .= '::XSD' if ! $base =~ /XSD/;
-            push @args, ( module_base => $base );
-        }
-
         push @schemas, My::W3C::SOAP::XSD::Document->new(
             string        => $node->toString,
-            @args,
         );
         $schemas[-1]->location($self->location);
         $schemas[-1]->target_namespace;
