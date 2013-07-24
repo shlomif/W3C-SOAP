@@ -323,10 +323,6 @@ has min_occurs => (
     builder => '_min_occurs',
     lazy_build => 1,
 );
-has choice_group => (
-    is     => 'rw',
-    isa    => 'Int',
-);
 
 sub _complex_type {
     my ($self) = @_;
@@ -628,7 +624,6 @@ sub _get_sequence_elements {
     my ($self, $node) = @_;
     my @nodes = $self->document->xpc->findnodes('xsd:sequence/*', $node);
     my @sequence;
-    my $group = 1;
 
     for my $node (@nodes) {
         if ( $node->nodeName =~ /(?:^|:)element$/ ) {
@@ -643,10 +638,8 @@ sub _get_sequence_elements {
                 push @sequence, My::W3C::SOAP::XSD::Document::Element->new(
                     parent_node  => $self,
                     node         => $choice,
-                    choice_group => $group,
                 );
             }
-            $group++;
         }
     }
 
