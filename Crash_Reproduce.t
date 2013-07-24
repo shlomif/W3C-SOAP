@@ -1798,12 +1798,6 @@ use Carp;
 extends 'My::W3C::SOAP::Document::Node';
 
 
-has style => (
-    is         => 'rw',
-    isa        => 'Str',
-    builder    => '_style',
-    lazy_build => 1,
-);
 has action => (
     is         => 'rw',
     isa        => 'Str',
@@ -1822,14 +1816,6 @@ has outputs => (
     builder    => '_outputs',
     lazy_build => 1,
 );
-
-sub _style {
-    my ($self) = @_;
-    my $style = $self->node->getAttribute('style');
-    return $style if $style;
-    my ($child) = $self->document->xpc->findnode('soap:binding'. $self->node);
-    return $child->getAttribute('style');
-}
 
 sub _action {
     my ($self) = @_;
@@ -1870,26 +1856,12 @@ use Carp;
 extends 'My::W3C::SOAP::Document::Node';
 
 
-has style => (
-    is         => 'rw',
-    isa        => 'Str',
-    builder    => '_style',
-    lazy_build => 1,
-);
 has transport => (
     is         => 'rw',
     isa        => 'Str',
     builder    => '_transport',
     lazy_build => 1,
 );
-
-sub _style {
-    my ($self) = @_;
-    my $style = $self->node->getAttribute('style');
-    return $style if $style;
-    my ($child) = $self->document->xpc->findnode('soap:binding'. $self->node);
-    return $child->getAttribute('style');
-}
 
 sub _transport {
     my ($self) = @_;
