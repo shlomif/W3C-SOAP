@@ -270,12 +270,6 @@ has anon_complex_type_count => (
     default => -1,
     handles => { complex_type_count => 'inc' },
 );
-has ns_name => (
-    is        => 'rw',
-    isa       => 'Str',
-    builder   => '_ns_name',
-    lazy_build => 1,
-);
 has ns_map => (
     is         => 'rw',
     isa        => 'HashRef[Str]',
@@ -354,20 +348,6 @@ sub _simple_type {
     }
 
     return \%simple_type;
-}
-
-sub _ns_name {
-    my ($self) = @_;
-    my %rev = reverse %{ $self->ns_map };
-    if ( !$rev{$self->target_namespace} ) {
-        delete $self->ns_map->{''};
-        my $ns = $self->target_namespace;
-        $ns =~ s/:/_/g;
-        $rev{$self->target_namespace} = $ns;
-        $self->ns_map->{$ns} = $self->target_namespace;
-    }
-    Carp::confess "No ns name\n".$self->target_namespace if !$rev{$self->target_namespace};
-    return $rev{$self->target_namespace};
 }
 
 sub _ns_map {
