@@ -797,12 +797,6 @@ has imports => (
     builder    => '_imports',
     lazy_build => 1,
 );
-has includes => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document]',
-    builder    => '_includes',
-    lazy_build => 1,
-);
 has include => (
     is         => 'rw',
     isa        => 'HashRef[My::W3C::SOAP::XSD::Document]',
@@ -915,35 +909,6 @@ sub _imports {
     }
 
     return \@imports;
-}
-
-sub _includes {
-    my ($self) = @_;
-    my @includes;
-    my @nodes = $self->xpc->findnodes('//xsd:include');
-
-    for my $include (@nodes) {
-        next if $include->getAttribute('namespace') && $include->getAttribute('namespace') eq 'http://www.w3.org/2001/XMLSchema';
-
-        my $location = $include->getAttribute('schemaLocation');
-        if ($location) {
-
-            if ( $self->location && $self->location =~ m{^(?:https?|ftp)://} ) {
-                $location = URI->new_abs($location, $self->location)->as_string;
-            }
-
-            push @includes, __PACKAGE__->new(
-                location      => $location,
-                ns_module_map => $self->ns_module_map,
-                module_base   => $self->module_base,
-            );
-        }
-        else {
-            warn "Found include but no schemaLocation so no schema included!\n\t" . $include->toString . "\n\t";
-        }
-    }
-
-    return \@includes;
 }
 
 sub _include {
@@ -1540,9 +1505,6 @@ sub get_schemas {
         for my $import ( @{ $xsd->imports } ) {
             push @xsds, $import;
         }
-        for my $include ( @{ $xsd->includes } ) {
-            push @xsds, $include;
-        }
     }
 
     # flatten schemas specified more than once
@@ -1823,7 +1785,6 @@ sub _element {
 
     for my $schema (@schemas) {
         push @schemas, @{ $schema->imports };
-        push @schemas, @{ $schema->includes };
 
         if ( My::W3C::Utils::cmp_ns($schema->target_namespace, $nsuri) ) {
             for my $element (@{ $schema->elements }) {
