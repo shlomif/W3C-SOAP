@@ -373,32 +373,6 @@ sub _ns_map {
     return \%map;
 }
 
-sub get_ns_uri {
-    my ($self, $ns_name, $node) = @_;
-    Carp::confess "No namespace passed when trying to map a namespace uri!\n" if !defined $ns_name;
-
-    return $self->ns_map->{$ns_name} if $self->ns_map->{$ns_name};
-
-    if ( $ns_name =~ /:/ ) {
-        my $tmp_ns_name = $ns_name;
-        $tmp_ns_name =~ s/:/_/g;
-        return $self->ns_map->{$tmp_ns_name} if $self->ns_map->{$tmp_ns_name};
-    }
-
-    while ($node) {
-        my $ns = $node->getAttribute("xmlns:$ns_name");
-        return $ns if $ns;
-        $ns = $node->getAttribute("targetNamespace");
-        return $ns if $ns;
-        $node = $node->parentNode;
-        last if ref $node eq 'XML::LibXML::Document';
-    }
-
-    Carp::confess "Couldn't find the namespace '$ns_name' to map\nMap has:\n", $self->ns_map if !$self->ns_map->{$ns_name};
-
-    return $self->ns_map->{$ns_name};
-}
-
 package My::W3C::SOAP::WSDL::Document::Message;
 
 # Created on: 2012-05-27 19:25:15
