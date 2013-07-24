@@ -38,26 +38,6 @@ sub split_ns {
     return $name ? ($ns, $name) : ('', $ns);
 }
 
-sub ns2module {
-    my ($ns) = @_;
-
-    my $uri = URI->new($ns);
-
-    # URI's which have a host an a path are converted Java style name spacing
-    if ( $uri->can('host') && $uri->can('path') ) {
-        my $module = join '::', reverse map {ucfirst $_} map {lc $_} map {s/\W/_/g; $_} split /[.]/, $uri->host; ## no critic
-        $module .= join '::', map {s/\W/_/g; $_} split m{/}, $uri->path; ## no critic
-        return $module;
-    }
-
-    # other URI's are just made safe as a perl module name.
-    $ns =~ s{://}{::};
-    $ns =~ s{([^:]:)([^:])}{$1:$2}g;
-    $ns =~ s{[^\w:]+}{_}g;
-
-    return $ns;
-}
-
 package My::W3C::SOAP::Document;
 
 # Created on: 2012-05-27 19:26:43
@@ -176,11 +156,6 @@ sub _target_namespace {
 sub _module {
     my ($self) = @_;
     my $ns = $self->target_namespace;
-
-    if ( $self->has_module_base ) {
-        $self->ns_module_map->{My::W3C::Utils::normalise_ns($self->target_namespace)}
-            = $self->module_base . '::' . My::W3C::Utils::ns2module($self->target_namespace);
-    }
 
     if ( !$self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)} && $self->ns_module_map->{$ns} ) {
         $self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)} = $self->ns_module_map->{$ns};
