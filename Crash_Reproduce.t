@@ -1038,46 +1038,6 @@ sub get_module_base {
     return $self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)};
 }
 
-1;
-package My::W3C::SOAP::Parser;
-
-# Created on: 2012-05-27 18:58:29
-# Create by:  Ivan Wills
-# $Id$
-# $Revision$, $HeadURL$, $Date$
-# $Revision$, $Source$, $Date$
-
-use Moose;
-
-has document => (
-    is       => 'rw',
-    isa      => 'My::W3C::SOAP::Document',
-);
-has lib => (
-    is        => 'rw',
-    isa       => 'Str',
-    predicate => 'has_lib',
-);
-
-around BUILDARGS => sub {
-    my ($orig, $class, @args) = @_;
-    my $args
-        = !@args     ? {}
-        : @args == 1 ? $args[0]
-        :              {@args};
-
-    my $type = $class;
-    $type =~ s/Parser/Document/;
-
-    for my $arg ( keys %$args ) {
-        if ( $arg eq 'location' || $arg eq 'string' ) {
-            $args->{document} = $type->new($args);
-        }
-    }
-
-    return $class->$orig($args);
-};
-
 package My::W3C::SOAP::WSDL::Document::Message;
 
 # Created on: 2012-05-27 19:25:15
@@ -1261,25 +1221,41 @@ sub get_nsuri {
 
 package My::W3C::SOAP::WSDL::Parser;
 
-# Created on: 2012-05-27 18:58:29
-# Create by:  Ivan Wills
-# $Id$
-# $Revision$, $HeadURL$, $Date$
-# $Revision$, $Source$, $Date$
-
 use Moose;
 
-extends 'My::W3C::SOAP::Parser';
-
-has '+document' => (
+has 'document' => (
+    is       => 'rw',
     isa      => 'My::W3C::SOAP::WSDL::Document',
     required => 1,
 );
-
+has lib => (
+    is        => 'rw',
+    isa       => 'Str',
+    predicate => 'has_lib',
+);
 has location => (
     is  => 'rw',
     isa => 'Str',
 );
+
+around BUILDARGS => sub {
+    my ($orig, $class, @args) = @_;
+    my $args
+        = !@args     ? {}
+        : @args == 1 ? $args[0]
+        :              {@args};
+
+    my $type = $class;
+    $type =~ s/Parser/Document/;
+
+    for my $arg ( keys %$args ) {
+        if ( $arg eq 'location' || $arg eq 'string' ) {
+            $args->{document} = $type->new($args);
+        }
+    }
+
+    return $class->$orig($args);
+};
 
 package main;
 
