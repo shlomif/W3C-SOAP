@@ -2096,12 +2096,6 @@ has faults => (
     builder    => '_faults',
     lazy_build => 1,
 );
-has port_type => (
-    is         => 'rw',
-    isa        => 'My::W3C::SOAP::WSDL::Document::Operation',
-    builder    => '_port_type',
-    lazy_build => 1,
-);
 
 sub _style {
     my ($self) = @_;
@@ -2135,15 +2129,6 @@ sub _in_out_puts {
     }
 
     return \@puts;
-}
-
-sub _port_type {
-    my ($self) = @_;
-    for my $port_type (@{ $self->document->port_types }) {
-        for my $operation (@{ $port_type->operations }) {
-            return $operation if $operation->name eq $self->name;
-        }
-    }
 }
 
 package My::W3C::SOAP::WSDL::Document::Binding;
@@ -2416,19 +2401,6 @@ has message => (
     lazy_build => 1,
     weak_ref   => 1,
 );
-has port_types => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::PortType]',
-    builder    => '_port_types',
-    lazy_build => 1,
-);
-has port_type => (
-    is         => 'rw',
-    isa        => 'HashRef[My::W3C::SOAP::WSDL::Document::PortType]',
-    builder    => '_port_type',
-    lazy_build => 1,
-    weak_ref   => 1,
-);
 has bindings => (
     is         => 'rw',
     isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::Binding]',
@@ -2492,31 +2464,6 @@ sub _message {
     }
 
     return \%message;
-}
-
-sub _port_types {
-    my ($self) = @_;
-    my @port_types;
-    my @nodes = $self->xpc->findnodes('//wsdl:portType');
-
-    for my $node (@nodes) {
-        push @port_types, My::W3C::SOAP::WSDL::Document::PortType->new(
-            document => $self,
-            node   => $node,
-        );
-    }
-
-    return \@port_types;
-}
-
-sub _port_type {
-    my ($self) = @_;
-    my %port_type;
-    for my $port_type ( @{ $self->port_type }) {
-        $port_type{$port_type->name} = $port_type;
-    }
-
-    return \%port_type;
 }
 
 sub _bindings {
@@ -2723,7 +2670,6 @@ ok $parser, "Got a parser object";
 is $parser->document->target_namespace, 'http://eg.schema.org/v1', "Get target namespace";
 ok scalar( @{ $parser->document->messages }      ), "Got some messages";
 ok scalar( @{ $parser->document->schemas }  ), "Got some schemas";
-ok scalar( @{ $parser->document->port_types } ), "Got some port types";
 
 done_testing();
 exit;
