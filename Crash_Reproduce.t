@@ -305,7 +305,6 @@ sub simple_type {
         my $simple = $xsd->simple_type;
         if ( !$simple && @{ $xsd->simple_types } ) {
             $simple = $xsd->simple_type($xsd->_simple_type);
-            #warn $xsd->target_namespace . " $type => $simple\n" if $type eq 'GetCreateUIDResponseDto';
         }
 
         return $simple->{$type}->moose_type if $simple && $simple->{$type};
@@ -428,10 +427,7 @@ sub _build_restriction {
 sub moose_type {
     my ($self) = @_;
 
-    warn "No name for ".$self->node->toString if !$self->name;
-    my $type = $self->document->module . ':' . $self->name;
-
-    return $type;
+    return $self->document->module . ':' . $self->name;
 }
 
 package My::W3C::SOAP::XSD::Document::ComplexType;
