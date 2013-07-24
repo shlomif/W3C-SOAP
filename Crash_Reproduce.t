@@ -797,12 +797,6 @@ has imports => (
     builder    => '_imports',
     lazy_build => 1,
 );
-has imported => (
-    is         => 'rw',
-    isa        => 'HashRef[My::W3C::SOAP::XSD::Document]',
-    builder    => '_imported',
-    lazy_build => 1,
-);
 has includes => (
     is         => 'rw',
     isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document]',
@@ -918,21 +912,9 @@ sub _imports {
                 module_base   => $self->module_base,
             );
         }
-        else {
-            warn "Found import but no schemaLocation so no schema imported!\n\t" . $import->toString . "\n\t";
-        }
     }
 
     return \@imports;
-}
-
-sub _imported {
-    my ($self) = @_;
-    my %import;
-    for my $import (@{ $self->imports }) {
-        $import{$import->name} = $import;
-    }
-    return \%import;
 }
 
 sub _includes {
