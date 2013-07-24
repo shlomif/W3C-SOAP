@@ -1579,41 +1579,6 @@ sub element_attributes {
     return;
 }
 
-package My::W3C::SOAP::WSDL::Document::InOutPuts;
-
-# Created on: 2012-05-28 07:30:02
-# Create by:  Ivan Wills
-# $Id$
-# $Revision$, $HeadURL$, $Date$
-# $Revision$, $Source$, $Date$
-
-use Moose;
-use Carp;
-extends 'My::W3C::SOAP::Document::Node';
-
-
-has message => (
-    is         => 'rw',
-    isa        => 'Maybe[My::W3C::SOAP::WSDL::Document::Message]',
-    builder    => '_message',
-    lazy_build => 1,
-);
-has body => (
-    is         => 'rw',
-    isa        => 'Maybe[Str]',
-    builder    => '_body',
-    lazy_build => 1,
-);
-
-sub _message {
-    my ($self) = @_;
-    my ($ns, $message) = My::W3C::Utils::split_ns($self->node->getAttribute('message'));
-
-    for my $msg (@{ $self->document->messages }) {
-        return $msg if $msg->name eq $message;
-    }
-}
-
 package My::W3C::SOAP::WSDL::Document::Message;
 
 # Created on: 2012-05-27 19:25:15
