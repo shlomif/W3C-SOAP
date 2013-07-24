@@ -3,6 +3,8 @@
 use strict;
 use warnings;
 
+use Carp ();
+
 use Test::More;
 use File::ShareDir qw/dist_dir/;
 use Template;
@@ -10,7 +12,6 @@ use Template;
 package My::W3C::SOAP::Utils;
 
 use URI;
-use Carp ();
 
 sub cmp_ns {
     my ($ns1, $ns2) = @_;
@@ -66,7 +67,6 @@ package My::W3C::SOAP::Document;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use Carp qw/croak cluck confess longmess/;
 use TryCatch;
 use URI;
 use XML::LibXML;
@@ -186,8 +186,8 @@ sub _module {
         $self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)} = $self->ns_module_map->{$ns};
     }
 
-    confess "Trying to get module mappings when none specified!\n" if !$self->has_ns_module_map;
-    confess "No mapping specified for the namespace ", $ns, "!\n"  if !$self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)};
+    Carp::confess "Trying to get module mappings when none specified!\n" if !$self->has_ns_module_map;
+    Carp::confess "No mapping specified for the namespace ", $ns, "!\n"  if !$self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)};
 
     return $self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)};
 }
@@ -241,7 +241,7 @@ around BUILDARGS => sub {
         : @args == 1 ? $args[0]
         :              {@args};
 
-    confess "If document is not specified parent_node must be defined!\n"
+    Carp::confess "If document is not specified parent_node must be defined!\n"
         if !$args->{document} && !$args->{parent_node};
 
     return $class->$orig($args);
@@ -249,7 +249,7 @@ around BUILDARGS => sub {
 
 sub _document {
     my ($self) = shift;
-    confess "Lazybuild $self has both no parent_node nore document!\n" if !$self->has_parent_node || !defined $self->parent_node;
+    Carp::confess "Lazybuild $self has both no parent_node nore document!\n" if !$self->has_parent_node || !defined $self->parent_node;
     return $self->parent_node->isa('My::W3C::SOAP::Document') ? $self->parent_node : $self->parent_node->document;
 }
 
@@ -664,10 +664,8 @@ package My::W3C::SOAP::XSD::Document;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use Carp qw/croak cluck confess longmess/;
 use Path::Class;
 use XML::LibXML;
-use WWW::Mechanize;
 use TryCatch;
 use URI;
 
@@ -815,7 +813,7 @@ sub _simple_type {
             $name = $name ? $name . '_type' : 'anon'.$self->simple_type_count;
             $type->name($name);
         }
-        confess "No name for simple type ".$type->node->parentNode->toString if !$name;
+        Carp::confess "No name for simple type ".$type->node->parentNode->toString if !$name;
         $simple_type{$name} = $type;
     }
 
@@ -876,7 +874,7 @@ sub _complex_type {
             $name = $name ? $name . 'Type' : 'Anon'.$self->complex_type_count;
             $type->name($name);
         }
-        confess "No name for complex type ".$type->node->parentNode->toString if !$name;
+        Carp::confess "No name for complex type ".$type->node->parentNode->toString if !$name;
         $complex_type{$name} = $type;
     }
 
@@ -917,7 +915,7 @@ sub _ns_name {
         $rev{$self->target_namespace} = $ns;
         $self->ns_map->{$ns} = $self->target_namespace;
     }
-    confess "No ns name\n".$self->target_namespace if !$rev{$self->target_namespace};
+    Carp::confess "No ns name\n".$self->target_namespace if !$rev{$self->target_namespace};
     return $rev{$self->target_namespace};
 }
 
@@ -946,7 +944,7 @@ sub _ns_map {
 
 sub get_ns_uri {
     my ($self, $ns_name, $node) = @_;
-    confess "No namespace passed when trying to map a namespace uri!\n" if !defined $ns_name;
+    Carp::confess "No namespace passed when trying to map a namespace uri!\n" if !defined $ns_name;
 
     return $self->ns_map->{$ns_name} if $self->ns_map->{$ns_name};
 
@@ -965,7 +963,7 @@ sub get_ns_uri {
         last if ref $node eq 'XML::LibXML::Document';
     }
 
-    confess "Couldn't find the namespace '$ns_name' to map\nMap has:\n", $self->ns_map if !$self->ns_map->{$ns_name};
+    Carp::confess "Couldn't find the namespace '$ns_name' to map\nMap has:\n", $self->ns_map if !$self->ns_map->{$ns_name};
 
     return $self->ns_map->{$ns_name};
 }
