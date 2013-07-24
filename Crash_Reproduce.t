@@ -1567,21 +1567,6 @@ has ns_module_map => (
     required => 1,
 );
 
-my %written;
-sub write_module {
-    my ($self, $tt, $data, $file) = @_;
-    my $template = $self->template;
-
-     if ($written{$file}++) {
-        warn "Already written $file!\n";
-        return;
-    }
-
-    $template->process($tt, $data, "$file");
-    confess "Error in creating $file (via $tt): ". $template->error."\n"
-        if $template->error;
-}
-
 sub get_schemas {
     my ($self) = @_;
     my @xsds   = @{ $self->document };
