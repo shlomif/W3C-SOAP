@@ -979,13 +979,6 @@ has schemas => (
     builder    => '_schemas',
     lazy_build => 1,
 );
-has schema => (
-    is         => 'rw',
-    isa        => 'HashRef[My::W3C::SOAP::XSD::Document]',
-    builder    => '_schema',
-    lazy_build => 1,
-    weak_ref   => 1,
-);
 
 sub _messages {
     my ($self) = @_;
@@ -1046,16 +1039,6 @@ sub _schemas {
     }
 
     return \@schemas;
-}
-
-sub _schema {
-    my ($self) = @_;
-    my %schema;
-    for my $schema ( @{ $self->schemas }) {
-        $schema{$schema->target_namespace} = $schema;
-    }
-
-    return \%schema;
 }
 
 package My::W3C::SOAP::WSDL::Parser;
