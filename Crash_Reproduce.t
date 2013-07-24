@@ -5,15 +5,6 @@ use warnings;
 
 use Carp ();
 
-package My::W3C::SOAP::Utils;
-
-sub split_ns {
-    my ($tag) = @_;
-    Carp::confess "No XML tag passed to split!\n" unless defined $tag;
-    my ($ns, $name) = split /:/, $tag, 2;
-    return $name ? ($ns, $name) : ('', $ns);
-}
-
 package My::W3C::SOAP::Document;
 
 # Created on: 2012-05-27 19:26:43
