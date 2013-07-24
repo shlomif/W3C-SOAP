@@ -14,7 +14,6 @@ package My::W3C::SOAP::Document;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use URI;
 use XML::LibXML;
 
 has string => (
@@ -174,9 +173,6 @@ package My::W3C::SOAP::XSD::Document;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use Path::Class;
-use XML::LibXML;
-use URI;
 
 extends 'My::W3C::SOAP::Document';
 
@@ -244,8 +240,6 @@ package My::W3C::SOAP::WSDL::Document;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use Path::Class;
-use XML::LibXML;
 
 extends 'My::W3C::SOAP::Document';
 
