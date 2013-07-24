@@ -683,12 +683,6 @@ has elements => (
     builder   => '_elements',
     lazy_build => 1,
 );
-has element => (
-    is         => 'rw',
-    isa        => 'HashRef[My::W3C::SOAP::XSD::Document::Element]',
-    builder   => '_element',
-    lazy_build => 1,
-);
 has module => (
     is        => 'rw',
     isa       => 'Str',
@@ -857,15 +851,6 @@ sub _elements {
     return \@elements;
 }
 
-sub _element {
-    my ($self) = @_;
-    my %element;
-    for my $element (@{ $self->elements }) {
-        $element{$element->name} = $element;
-    }
-    return \%element;
-}
-
 sub _ns_name {
     my ($self) = @_;
     my %rev = reverse %{ $self->ns_map };
@@ -942,43 +927,12 @@ use Carp;
 
 extends 'My::W3C::SOAP::Document::Node';
 
-
-has element => (
-    is         => 'rw',
-    isa        => 'Maybe[My::W3C::SOAP::XSD::Document::Element]',
-    builder    => '_element',
-    lazy_build => 1,
-);
 has type => (
     is         => 'rw',
     isa        => 'Maybe[Str]',
     builder    => '_type',
     lazy_build => 1,
 );
-
-sub _element {
-    my ($self) = @_;
-    my ($part) = $self->document->xpc->findnodes("wsdl:part", $self->node);
-    return unless $part;
-    my $element = $part->getAttribute('element');
-    return unless $element;
-
-    my ($ns, $el_name) = My::W3C::Utils::split_ns($element);
-    my $nsuri = $self->document->get_nsuri($ns);
-    my @schemas = @{ $self->document->schemas };
-
-    for my $schema (@schemas) {
-        push @schemas, @{ $schema->imports };
-
-        if ( My::W3C::Utils::cmp_ns($schema->target_namespace, $nsuri) ) {
-            for my $element (@{ $schema->elements }) {
-                return $element if $element->name eq $el_name;
-            }
-        }
-    }
-
-    return;
-}
 
 sub _type {
     my ($self) = @_;
