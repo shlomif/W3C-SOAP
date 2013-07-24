@@ -1161,11 +1161,6 @@ has document => (
     is       => 'rw',
     isa      => 'My::W3C::SOAP::Document',
 );
-has template => (
-    is        => 'rw',
-    isa       => 'Template',
-    predicate => 'has_template',
-);
 has lib => (
     is        => 'rw',
     isa       => 'Str',
@@ -1996,17 +1991,10 @@ has location => (
 
 package main;
 
-# set up templates
-my $template = Template->new(
-    INCLUDE_PATH => './templates',
-    INTERPOLATE  => 0,
-    EVAL_PERL    => 1,
-);
 # create the parser object
 my $parser = My::W3C::SOAP::WSDL::Parser->new(
     location      => 't/eg.wsdl',
     module        => 'MyApp::WsdlEg',
-    template      => $template,
     lib           => './t/lib',
     ns_module_map => {
         'http://eg.schema.org/v1'     => 'MyApp::Eg',
