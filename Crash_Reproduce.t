@@ -86,13 +86,6 @@ has ns_module_map => (
     required  => 1,
     predicate => 'has_ns_module_map',
 );
-has module => (
-    is        => 'rw',
-    isa       => 'Str',
-    predicate => 'has_module',
-    builder   => '_module',
-    lazy_build => 1,
-);
 has module_base => (
     is        => 'rw',
     isa       => 'Str',
@@ -151,20 +144,6 @@ sub _target_namespace {
     $ns ||= $self->location || 'NsAnon' . $anon++;
 
     return $ns;
-}
-
-sub _module {
-    my ($self) = @_;
-    my $ns = $self->target_namespace;
-
-    if ( !$self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)} && $self->ns_module_map->{$ns} ) {
-        $self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)} = $self->ns_module_map->{$ns};
-    }
-
-    Carp::confess "Trying to get module mappings when none specified!\n" if !$self->has_ns_module_map;
-    Carp::confess "No mapping specified for the namespace ", $ns, "!\n"  if !$self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)};
-
-    return $self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)};
 }
 
 package My::W3C::SOAP::Document::Node;
@@ -346,12 +325,6 @@ sub _max_occurs {
 sub _min_occurs {
     my ($self) = @_;
     return $self->node->getAttribute('minOccurs') || 0;
-}
-
-sub module {
-    my ($self) = @_;
-
-    return $self->document->module;
 }
 
 sub simple_type {
@@ -544,23 +517,11 @@ has sequence => (
     builder => '_sequence',
     lazy_build => 1,
 );
-has module => (
-    is        => 'rw',
-    isa       => 'Str',
-    builder   => '_module',
-    lazy_build => 1,
-);
 
 sub _sequence {
     my ($self) = @_;
     my ($node) = $self->document->xpc->findnodes('xsd:complexContent/xsd:extension', $self->node);
     return $self->_get_sequence_elements($node || $self->node);
-}
-
-sub _module {
-    my ($self) = @_;
-
-    return $self->document->module . '::' . ( $self->name || $self->parent_node->name );
 }
 
 sub _get_sequence_elements {
@@ -656,12 +617,6 @@ has elements => (
     is         => 'rw',
     isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document::Element]',
     builder   => '_elements',
-    lazy_build => 1,
-);
-has module => (
-    is        => 'rw',
-    isa       => 'Str',
-    builder   => '_module',
     lazy_build => 1,
 );
 has ns_name => (
@@ -1059,7 +1014,6 @@ package main;
 # create the parser object
 my $parser = My::W3C::SOAP::WSDL::Parser->new(
     location      => 't/eg.wsdl',
-    module        => 'MyApp::WsdlEg',
     lib           => './t/lib',
     ns_module_map => {
         'http://eg.schema.org/v1'     => 'MyApp::Eg',
