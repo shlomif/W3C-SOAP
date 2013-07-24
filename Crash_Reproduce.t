@@ -1436,28 +1436,6 @@ sub _xsd_ns_name {
     return $ns_map{$ns} = 'WSX' . $count++;
 }
 
-sub _from_xml {
-    my ($class, $type) = @_;
-    my $xml = $_;
-    confess "Unknown conversion " . ( (ref $xml) || $xml )
-        if !$xml || !blessed $xml || !$xml->isa('XML::LibXML::Node');
-
-    try {
-        return $type->new($xml);
-    }
-    catch ($e) {
-        $e =~ s/ at .*//ms;
-        warn "$class Failed in building from $type\->new($xml) : $e\n",
-            "Will use :\n\t'",
-            $xml->toString,
-            "'\n\tor\n\t'",
-            $xml->textContent,"'\n",
-            '*' x 222,
-            "\n";
-    }
-    return $xml->textContent;
-}
-
 sub xml2perl_map {
     my ($class) = @_;
     my %map;
