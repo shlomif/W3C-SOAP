@@ -42,11 +42,6 @@ has target_namespace => (
     builder    => '_target_namespace',
     lazy_build => 1,
 );
-has ns_module_map => (
-    is        => 'rw',
-    isa       => 'HashRef[Str]',
-    required  => 1,
-);
 has module_base => (
     is        => 'rw',
     isa       => 'Str',
@@ -178,18 +173,6 @@ has '+parent_node' => (
     isa    => 'Maybe[My::W3C::SOAP::XSD::Document::Node]',
 );
 
-package My::W3C::SOAP::XSD::Document::SimpleType;
-
-# Created on: 2012-05-26 19:04:19
-# Create by:  Ivan Wills
-# $Id$
-# $Revision$, $HeadURL$, $Date$
-# $Revision$, $Source$, $Date$
-
-use Moose;
-
-extends 'My::W3C::SOAP::XSD::Document::Node';
-
 package My::W3C::SOAP::XSD::Document;
 
 # Created on: 2012-05-26 15:46:31
@@ -214,13 +197,13 @@ has imports => (
 );
 has simple_types => (
     is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document::SimpleType]',
+    isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document::Node]',
     builder    => '_simple_types',
     lazy_build => 1,
 );
 has simple_type => (
     is         => 'rw',
-    isa        => 'HashRef[My::W3C::SOAP::XSD::Document::SimpleType]',
+    isa        => 'HashRef[My::W3C::SOAP::XSD::Document::Node]',
     builder    => '_simple_type',
     lazy_build => 0,
 );
@@ -261,7 +244,6 @@ sub _imports {
 
             push @imports, __PACKAGE__->new(
                 location      => $location,
-                ns_module_map => $self->ns_module_map,
                 module_base   => $self->module_base,
             );
         }
@@ -276,7 +258,7 @@ sub _simple_types {
     my @nodes = $self->xpc->findnodes('//xsd:simpleType');
 
     for my $node (@nodes) {
-        push @simple_types, My::W3C::SOAP::XSD::Document::SimpleType->new(
+        push @simple_types, My::W3C::SOAP::XSD::Document::Node->new(
             document => $self,
             node   => $node,
         );
@@ -402,7 +384,6 @@ sub _schemas {
 
         push @schemas, My::W3C::SOAP::XSD::Document->new(
             string        => $node->toString,
-            ns_module_map => $self->ns_module_map,
             @args,
         );
         $schemas[-1]->location($self->location);
@@ -458,11 +439,6 @@ use Test::More;
 my $parser = My::W3C::SOAP::WSDL::Parser->new(
     location      => 't/eg.wsdl',
     lib           => './t/lib',
-    ns_module_map => {
-        'http://eg.schema.org/v1'     => 'MyApp::Eg',
-        'http://parent.schema.org/v1' => 'MyApp::Parent',
-        'http://other.schema.org/v1/'  => 'MyApp::Other',
-    },
 );
 
 ok $parser, "Got a parser object";
