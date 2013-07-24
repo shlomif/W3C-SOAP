@@ -298,19 +298,6 @@ has '+parent_node' => (
     isa    => 'Maybe[My::W3C::SOAP::XSD::Document::Node]',
 );
 
-package My::W3C::SOAP::XSD::Document::Type;
-
-# Created on: 2012-06-06 14:00:31
-# Create by:  dev
-# $Id$
-# $Revision$, $HeadURL$, $Date$
-# $Revision$, $Source$, $Date$
-
-use Moose;
-use Carp;
-
-extends 'My::W3C::SOAP::XSD::Document::Node';
-
 package My::W3C::SOAP::XSD::Document::Element;
 
 # Created on: 2012-05-26 19:04:09
@@ -322,7 +309,7 @@ package My::W3C::SOAP::XSD::Document::Element;
 use Moose;
 use Carp;
 
-extends 'My::W3C::SOAP::XSD::Document::Type';
+extends 'My::W3C::SOAP::XSD::Document::Node';
 
 
 has complex_type => (
@@ -579,7 +566,7 @@ package My::W3C::SOAP::XSD::Document::SimpleType;
 use Moose;
 use Carp;
 
-extends 'My::W3C::SOAP::XSD::Document::Type';
+extends 'My::W3C::SOAP::XSD::Document::Node';
 
 
 has type => (
@@ -671,7 +658,7 @@ package My::W3C::SOAP::XSD::Document::ComplexType;
 use Moose;
 use Carp;
 
-extends 'My::W3C::SOAP::XSD::Document::Type';
+extends 'My::W3C::SOAP::XSD::Document::Node';
 
 
 has sequence => (
