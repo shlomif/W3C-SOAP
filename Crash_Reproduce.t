@@ -1820,35 +1820,6 @@ sub _in_out_puts {
     return \@puts;
 }
 
-package My::W3C::SOAP::WSDL::Document::Binding;
-
-# Created on: 2012-05-27 19:25:33
-# Create by:  Ivan Wills
-# $Id$
-# $Revision$, $HeadURL$, $Date$
-# $Revision$, $Source$, $Date$
-
-use Moose;
-use Carp;
-
-extends 'My::W3C::SOAP::Document::Node';
-
-
-has transport => (
-    is         => 'rw',
-    isa        => 'Str',
-    builder    => '_transport',
-    lazy_build => 1,
-);
-
-sub _transport {
-    my ($self) = @_;
-    my $transport = $self->node->getAttribute('transport');
-    return $transport if $transport;
-    my ($child) = $self->document->xpc->findnode('soap:binding'. $self->node);
-    return $child->getAttribute('transport');
-}
-
 package My::W3C::SOAP::WSDL::Document::Message;
 
 # Created on: 2012-05-27 19:25:15
@@ -1924,24 +1895,6 @@ use Carp;
 
 extends 'My::W3C::SOAP::Document::Node';
 
-
-has binding => (
-    is         => 'rw',
-    isa        => 'My::W3C::SOAP::WSDL::Document::Binding',
-    builder    => '_binding',
-    lazy_build => 1,
-    weak_ref   => 1,
-);
-
-sub _binding {
-    my ($self) = @_;
-    my ($ns, $name) = My::W3C::Utils::split_ns($self->node->getAttribute('binding'));
-
-    for my $binding (@{ $self->document->bindings }) {
-        return $binding if $binding->name eq $name;
-    }
-}
-
 package My::W3C::SOAP::WSDL::Document::Service;
 
 # Created on: 2012-05-27 19:25:41
@@ -2007,19 +1960,6 @@ has message => (
     lazy_build => 1,
     weak_ref   => 1,
 );
-has bindings => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::Binding]',
-    builder    => '_bindings',
-    lazy_build => 1,
-);
-has binding => (
-    is         => 'rw',
-    isa        => 'HashRef[My::W3C::SOAP::WSDL::Document::Binding]',
-    builder    => '_binding',
-    lazy_build => 1,
-    weak_ref   => 1,
-);
 has services => (
     is         => 'rw',
     isa        => 'ArrayRef[My::W3C::SOAP::WSDL::Document::Service]',
@@ -2070,31 +2010,6 @@ sub _message {
     }
 
     return \%message;
-}
-
-sub _bindings {
-    my ($self) = @_;
-    my @bindings;
-    my @nodes = $self->xpc->findnodes('//wsdl:binding');
-
-    for my $node (@nodes) {
-        push @bindings, My::W3C::SOAP::WSDL::Document::Binding->new(
-            document => $self,
-            node   => $node,
-        );
-    }
-
-    return \@bindings;
-}
-
-sub _binding {
-    my ($self) = @_;
-    my %binding;
-    for my $binding ( @{ $self->binding }) {
-        $binding{$binding->name} = $binding;
-    }
-
-    return \%binding;
 }
 
 sub _services {
