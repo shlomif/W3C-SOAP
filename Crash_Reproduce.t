@@ -23,7 +23,6 @@ package My::W3C::SOAP::Document;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use TryCatch;
 use URI;
 use XML::LibXML;
 
@@ -73,22 +72,10 @@ around BUILDARGS => sub {
     delete $args->{module_base} if ! defined $args->{module_base};
 
     if ( $args->{string} ) {
-        try {
-            $args->{xml} = XML::LibXML->load_xml(string => $args->{string});
-        }
-        catch($e) {
-            chomp $e;
-            die "Foo";
-        }
+        $args->{xml} = XML::LibXML->load_xml(string => $args->{string});
     }
     elsif ( $args->{location} ) {
-        try {
-            $args->{xml} = XML::LibXML->load_xml(location => $args->{location});
-        }
-        catch($e) {
-            chomp $e;
-            die "Bar";
-        }
+        $args->{xml} = XML::LibXML->load_xml(location => $args->{location});
     }
 
     return $class->$orig($args);
@@ -512,7 +499,6 @@ package My::W3C::SOAP::XSD::Document;
 use Moose;
 use Path::Class;
 use XML::LibXML;
-use TryCatch;
 use URI;
 
 extends 'My::W3C::SOAP::Document';
@@ -661,16 +647,10 @@ sub _complex_types {
 
     for my $node (@nodes) {
         # get all top level complex types
-        try {
-            push @complex_types, My::W3C::SOAP::XSD::Document::ComplexType->new(
-                document => $self,
-                node     => $node,
-            );
-        }
-        catch ($e) {
-            die $e;
-        }
-
+        push @complex_types, My::W3C::SOAP::XSD::Document::ComplexType->new(
+            document => $self,
+            node     => $node,
+        );
     }
 
     # now itterate over all document level elements and elements of complex types
@@ -681,17 +661,12 @@ sub _complex_types {
         my ($node) = $self->xpc->findnodes('xsd:complexType', $element->node);
         next unless $node;
 
-        try {
-            push @complex_types, My::W3C::SOAP::XSD::Document::ComplexType->new(
-                parent_node => $element,
-                document    => $self,
-                node        => $node,
-            );
-            push @elements, @{ $complex_types[-1]->sequence };
-        }
-        catch ($e) {
-            die $e;
-        }
+        push @complex_types, My::W3C::SOAP::XSD::Document::ComplexType->new(
+            parent_node => $element,
+            document    => $self,
+            node        => $node,
+        );
+        push @elements, @{ $complex_types[-1]->sequence };
     }
 
     return \@complex_types;
