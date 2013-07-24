@@ -399,15 +399,6 @@ sub module {
     return $self->document->module;
 }
 
-sub type_module {
-    my ($self) = @_;
-    my ($ns, $type) = My::W3C::SOAP::Utils::split_ns($self->type);
-    $ns ||= $self->document->ns_name;
-    my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
-
-    return $self->simple_type || $self->document->get_module_base( $ns_uri ) . '::' . $type;
-}
-
 sub simple_type {
     my ($self) = @_;
     $self->document->simple_type();
@@ -993,15 +984,6 @@ sub get_ns_uri {
     confess "Couldn't find the namespace '$ns_name' to map\nMap has:\n", $self->ns_map if !$self->ns_map->{$ns_name};
 
     return $self->ns_map->{$ns_name};
-}
-
-sub get_module_base {
-    my ($self, $ns) = @_;
-
-    confess "Trying to get module mappings when none specified!\n" if !$self->has_ns_module_map;
-    confess "No mapping specified for the namespace $ns!\n"        if !$self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)};
-
-    return $self->ns_module_map->{My::W3C::Utils::normalise_ns($ns)};
 }
 
 package My::W3C::SOAP::WSDL::Document::Message;
