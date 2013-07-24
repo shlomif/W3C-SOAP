@@ -1989,19 +1989,6 @@ sub _type {
     return $type;
 }
 
-package My::W3C::SOAP::WSDL::Document::PortType;
-
-# Created on: 2012-05-27 19:25:22
-# Create by:  Ivan Wills
-# $Id$
-# $Revision$, $HeadURL$, $Date$
-# $Revision$, $Source$, $Date$
-
-use Moose;
-use Carp;
-
-extends 'My::W3C::SOAP::Document::Node';
-
 package My::W3C::SOAP::WSDL::Document::Port;
 
 # Created on: 2012-05-27 19:52:35
