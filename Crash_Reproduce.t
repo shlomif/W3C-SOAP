@@ -1660,34 +1660,12 @@ sub dynamic_classes {
             }
 
             $complex_seen{$type_module}++;
-            $self->complex_type_package($xsd, $type, $type_module, [ keys %modules ]);
         }
 
         push @packages, $module;
     }
 
     return @packages;
-}
-
-sub complex_type_package {
-    my ($self, $xsd, $type, $class_name, $super) = @_;
-
-    my $class = Moose::Meta::Class->create(
-        $class_name,
-        superclasses => $super,
-    );
-
-    $class->add_attribute(
-        '+xsd_ns',
-        default  => $xsd->target_namespace,
-        required => 1,
-    );
-
-    for my $node (@{ $type->sequence }) {
-        $self->element_attributes($class, $class_name, $node);
-    }
-
-    return $class;
 }
 
 sub element_attributes {
