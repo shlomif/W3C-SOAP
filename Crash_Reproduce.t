@@ -263,13 +263,6 @@ has anon_simple_type_count => (
     default => -1,
     handles => { simple_type_count => 'inc' },
 );
-has anon_complex_type_count => (
-    is      => 'ro',
-    isa     => 'Int',
-    traits  => [qw/Counter/],
-    default => -1,
-    handles => { complex_type_count => 'inc' },
-);
 
 sub _imports {
     my ($self) = @_;
