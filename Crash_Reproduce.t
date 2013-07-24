@@ -91,26 +91,16 @@ package My::W3C::SOAP::Document::Node;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use Carp;
-
 
 has node => (
     is       => 'rw',
     isa      => 'XML::LibXML::Node',
     required => 1,
 );
-has parent_node => (
-    is        => 'rw',
-    isa       => 'Maybe[My::W3C::SOAP::Document::Node]',
-    predicate => 'has_parent_node',
-    weak_ref  => 1,
-);
 has document => (
     is         => 'rw',
     isa        => 'My::W3C::SOAP::Document',
     required   => 1,
-    builder    => '_document',
-    lazy_build => 1,
     weak_ref   => 1,
     handles    => {
         xpc => 'xpc',
@@ -122,25 +112,6 @@ has name => (
     builder    => '_name',
     lazy_build => 1,
 );
-
-around BUILDARGS => sub {
-    my ($orig, $class, @args) = @_;
-    my $args
-        = !@args     ? {}
-        : @args == 1 ? $args[0]
-        :              {@args};
-
-    Carp::confess "If document is not specified parent_node must be defined!\n"
-        if !$args->{document} && !$args->{parent_node};
-
-    return $class->$orig($args);
-};
-
-sub _document {
-    my ($self) = shift;
-    Carp::confess "Lazybuild $self has both no parent_node nore document!\n" if !$self->has_parent_node || !defined $self->parent_node;
-    return $self->parent_node->isa('My::W3C::SOAP::Document') ? $self->parent_node : $self->parent_node->document;
-}
 
 sub _name {
     my ($self) = shift;
@@ -158,11 +129,6 @@ package My::W3C::SOAP::XSD::Document::Node;
 use Moose;
 
 extends 'My::W3C::SOAP::Document::Node';
-
-
-has '+parent_node' => (
-    isa    => 'Maybe[My::W3C::SOAP::XSD::Document::Node]',
-);
 
 package My::W3C::SOAP::XSD::Document;
 
