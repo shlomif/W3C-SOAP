@@ -325,12 +325,6 @@ has type => (
     lazy_build => 1,
     predicate  => 'has_type',
 );
-has package => (
-    is     => 'rw',
-    isa    => 'Str',
-    builder => '_package',
-    lazy_build => 1,
-);
 has max_occurs => (
     is     => 'rw',
     #isa    => 'Str',
@@ -391,23 +385,6 @@ sub _type {
     }
 
     return $self->has_anonymous;
-}
-
-sub _package {
-    my ($self) = @_;
-    my $type = $self->type;
-    my ($ns, $name) = My::W3C::SOAP::Utils::split_ns($type);
-    $ns ||= $self->document->ns_name;
-    my $ns_uri = $name ? $self->document->get_ns_uri($ns, $self->node) : '';
-    $name ||= $ns;
-
-    if ( $ns_uri eq 'http://www.w3.org/2001/XMLSchema' ) {
-        return "xs:$name";
-    }
-
-    my $base = $self->document->get_module_base( $ns_uri || $self->document->target_namespace );
-
-    return $base . '::' . $name;
 }
 
 sub _max_occurs {
