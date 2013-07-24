@@ -5,10 +5,6 @@ use warnings;
 
 use Carp ();
 
-use Test::More;
-use File::ShareDir qw/dist_dir/;
-use Template;
-
 package My::W3C::SOAP::Utils;
 
 sub split_ns {
@@ -30,7 +26,6 @@ use Moose;
 use TryCatch;
 use URI;
 use XML::LibXML;
-
 
 has string => (
     is         => 'rw',
@@ -486,7 +481,6 @@ package My::W3C::SOAP::XSD::Document::ComplexType;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use Carp;
 
 extends 'My::W3C::SOAP::XSD::Document::Node';
 
@@ -833,7 +827,6 @@ package My::W3C::SOAP::WSDL::Document::Message;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use Carp;
 
 extends 'My::W3C::SOAP::Document::Node';
 
@@ -863,7 +856,6 @@ package My::W3C::SOAP::WSDL::Document;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use Carp;
 use Path::Class;
 use XML::LibXML;
 
@@ -990,6 +982,8 @@ around BUILDARGS => sub {
 };
 
 package main;
+
+use Test::More;
 
 # create the parser object
 my $parser = My::W3C::SOAP::WSDL::Parser->new(
