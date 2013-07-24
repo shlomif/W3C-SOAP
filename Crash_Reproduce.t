@@ -1343,46 +1343,6 @@ coerce 'xsd:date',
             return strptime("%TT%F%z", "00:00:00T$_");
         };
 
-#subtype 'xsd:gYearMonth',
-#    as 'DateTime';
-#coerce 'xsd:gYearMonth',
-#    from 'Str',
-#    via {
-#        DateTime::Format::Striptime("", $_)
-#    };
-#
-#subtype 'xsd:gYear',
-#    as 'DateTime';
-#coerce 'xsd:gYear',
-#    from 'Str',
-#    via {
-#        DateTime::Format::Striptime("", $_)
-#    };
-#
-#subtype 'xsd:gMonthDay',
-#    as 'DateTime';
-#coerce 'xsd:gMonthDay',
-#    from 'Str',
-#    via {
-#        DateTime::Format::Striptime("", $_)
-#    };
-#
-#subtype 'xsd:gDay',
-#    as 'DateTime';
-#coerce 'xsd:gDay',
-#    from 'Str',
-#    via {
-#        DateTime::Format::Striptime("", $_)
-#    };
-#
-#subtype 'xsd:gMonth',
-#    as 'DateTime';
-#coerce 'xsd:gMonth',
-#    from 'Str',
-#    via {
-#        DateTime::Format::Striptime("", $_)
-#    };
-
 $SIG{__WARN__} = $sig_warn;
 
 1;
