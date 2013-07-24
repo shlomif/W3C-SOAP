@@ -313,11 +313,6 @@ has 'document' => (
     isa      => 'My::W3C::SOAP::WSDL::Document',
     required => 1,
 );
-has lib => (
-    is        => 'rw',
-    isa       => 'Str',
-    predicate => 'has_lib',
-);
 has location => (
     is  => 'rw',
     isa => 'Str',
@@ -349,7 +344,6 @@ use Test::More;
 # create the parser object
 my $parser = My::W3C::SOAP::WSDL::Parser->new(
     location      => 't/eg.wsdl',
-    lib           => './t/lib',
 );
 
 ok $parser, "Got a parser object";
