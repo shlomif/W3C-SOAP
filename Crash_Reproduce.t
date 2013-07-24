@@ -290,23 +290,6 @@ use Moose;
 
 extends 'My::W3C::SOAP::Document::Node';
 
-has type => (
-    is         => 'rw',
-    isa        => 'Maybe[Str]',
-    builder    => '_type',
-    lazy_build => 1,
-);
-
-sub _type {
-    my ($self) = @_;
-    my ($part) = $self->document->xpc->findnodes("wsdl:part", $self->node);
-    return unless $part;
-    my $type = $part->getAttribute('type');
-    return unless $type;
-
-    return $type;
-}
-
 package My::W3C::SOAP::WSDL::Document;
 
 # Created on: 2012-05-27 18:57:29
