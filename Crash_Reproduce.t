@@ -1885,8 +1885,6 @@ package My::W3C::SOAP::WSDL::Parser;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use Path::Class;
-use File::ShareDir qw/dist_dir/;
 
 extends 'My::W3C::SOAP::Parser';
 
