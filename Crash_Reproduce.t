@@ -729,12 +729,6 @@ has module => (
     builder   => '_module',
     lazy_build => 1,
 );
-has complex_content => (
-    is        => 'rw',
-    isa       => 'Str',
-    builder   => '_complex_content',
-    lazy_build => 1,
-);
 has extension => (
     is        => 'rw',
     isa       => 'Maybe[Str]',
@@ -749,12 +743,6 @@ sub _sequence {
 }
 
 sub _module {
-    my ($self) = @_;
-
-    return $self->document->module . '::' . ( $self->name || $self->parent_node->name );
-}
-
-sub _complex_content {
     my ($self) = @_;
 
     return $self->document->module . '::' . ( $self->name || $self->parent_node->name );
