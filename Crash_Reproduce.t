@@ -18,20 +18,6 @@ sub cmp_ns {
     return normalise_ns($ns1) eq normalise_ns($ns2);
 }
 
-sub xml_error {
-    my ($node) = @_;
-    my @lines  = split /\r?\n/, $node->toString;
-    my $indent = '';
-    if ( $lines[0] !~ /^\s+/ && $lines[-1] =~ /^(\s+)/ ) {
-        $indent = $1;
-    }
-    my $error = $indent . $node->toString."\n at ";
-    $error .= "line - ".$node->line_number.' ' if $node->line_number;
-    $error .= "path - ".$node->nodePath;
-
-    return $error;
-}
-
 sub normalise_ns {
     my ($ns) = @_;
 
@@ -432,7 +418,7 @@ sub simple_type {
             && $self->document->ns_map->{$ns} eq 'http://www.w3.org/2001/XMLSchema';
 
     my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
-    warn "Simple type missing a type for '".$self->type."'\n".My::W3C::Utils::xml_error($self->node)."\n"
+    warn "Simple type missing a type for '".$self->type."'\n"
         if !$ns && $ns_uri ne 'http://www.w3.org/2001/XMLSchema';
 
     return "xs:$type" if $ns_uri eq 'http://www.w3.org/2001/XMLSchema';
@@ -460,7 +446,7 @@ sub very_simple_type {
     return "xs:$type" if $self->document->ns_map->{$ns} && $self->document->ns_map->{$ns} eq 'http://www.w3.org/2001/XMLSchema';
 
     my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
-    warn "Simple type missing a type for '".$self->type."'\n".My::W3C::Utils::xml_error($self->node)."\n"
+    warn "Simple type missing a type for '".$self->type
         if !$ns && $ns_uri ne 'http://www.w3.org/2001/XMLSchema';
 
     return "xs:$type" if $ns_uri eq 'http://www.w3.org/2001/XMLSchema';
@@ -484,7 +470,7 @@ sub moosex_type {
     my ($ns, $type) = My::W3C::SOAP::Utils::split_ns($self->type);
     $ns ||= $self->document->ns_name;
     my $ns_uri = $self->document->get_ns_uri($ns, $self->node);
-    warn "Simple type missing a type for '".$self->type."'\n".My::W3C::Utils::xml_error($self->node)."\n"
+    warn "Simple type missing a type for '".$self->type."'\n"
         if !$ns && $ns_uri ne 'http://www.w3.org/2001/XMLSchema';
 
     return "'xs:$type'" if $ns_uri eq 'http://www.w3.org/2001/XMLSchema';
