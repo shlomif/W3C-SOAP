@@ -80,7 +80,7 @@ package My::W3C::SOAP::Document;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use Carp qw/carp croak cluck confess longmess/;
+use Carp qw/croak cluck confess longmess/;
 use TryCatch;
 use URI;
 use XML::LibXML;
@@ -802,7 +802,7 @@ package My::W3C::SOAP::XSD::Document;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use Carp qw/carp croak cluck confess longmess/;
+use Carp qw/croak cluck confess longmess/;
 use Path::Class;
 use XML::LibXML;
 use WWW::Mechanize;
@@ -1395,7 +1395,7 @@ package My::W3C::SOAP::XSD;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use Carp qw/carp croak cluck confess longmess/;
+use Carp qw/croak cluck confess longmess/;
 use Moose::Util::TypeConstraints;
 use MooseX::Types::XMLSchema;
 My::W3C::SOAP::XSD::Types->import(':all');
