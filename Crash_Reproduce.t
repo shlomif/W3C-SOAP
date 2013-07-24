@@ -11,26 +11,6 @@ use Template;
 
 package My::W3C::SOAP::Utils;
 
-use URI;
-
-sub cmp_ns {
-    my ($ns1, $ns2) = @_;
-
-    return normalise_ns($ns1) eq normalise_ns($ns2);
-}
-
-sub normalise_ns {
-    my ($ns) = @_;
-
-    my $uri = URI->new($ns);
-
-    if ( $uri->can('host') ) {
-        $uri->host(lc $uri->host);
-    }
-
-    return "$uri";
-}
-
 sub split_ns {
     my ($tag) = @_;
     Carp::confess "No XML tag passed to split!\n" unless defined $tag;
