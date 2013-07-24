@@ -378,21 +378,13 @@ package My::W3C::SOAP::XSD::Document::SimpleType;
 # $Revision$, $Source$, $Date$
 
 use Moose;
-use Carp;
 
 extends 'My::W3C::SOAP::XSD::Document::Node';
-
 
 has type => (
     is         => 'rw',
     isa        => 'Str',
     builder    => '_type',
-    lazy_build => 1,
-);
-has length => (
-    is         => 'rw',
-    isa        => 'Maybe[Int]',
-    builder    => '_length',
     lazy_build => 1,
 );
 
@@ -401,13 +393,6 @@ sub _type {
     my ($restriction) = $self->document->xpc->findnodes('xsd:restriction', $self->node);
 
     return $restriction->getAttribute('base');
-}
-
-sub _length    { return shift->_build_restriction('length')    }
-sub _build_restriction {
-    my ($self, $type) = @_;
-    my ($node) = $self->document->xpc->findnodes("xsd:restriction/xsd:$type", $self->node);
-    return $node->getAttribute('value');
 }
 
 sub moose_type {
