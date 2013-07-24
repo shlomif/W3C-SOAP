@@ -311,28 +311,6 @@ use Carp;
 
 extends 'My::W3C::SOAP::XSD::Document::Node';
 
-
-has documentation => (
-    is     => 'rw',
-    isa    => 'Str',
-    builder => '_documentation',
-    lazy_build => 1,
-);
-
-sub _documentation {
-    my ($self) = @_;
-    my ($documentation) = $self->document->xpc->findnodes('xsd:annotation/xsd:documentation', $self->node);
-
-    return '' unless $documentation;
-
-    $documentation = $documentation->textContent;
-    $documentation =~ s/^\s+|\s+$//g;
-
-    return $documentation;
-}
-
-1;
-
 package My::W3C::SOAP::XSD::Document::Element;
 
 # Created on: 2012-05-26 19:04:09
