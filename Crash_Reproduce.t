@@ -797,12 +797,6 @@ has imports => (
     builder    => '_imports',
     lazy_build => 1,
 );
-has include => (
-    is         => 'rw',
-    isa        => 'HashRef[My::W3C::SOAP::XSD::Document]',
-    builder    => '_include',
-    lazy_build => 1,
-);
 has simple_types => (
     is         => 'rw',
     isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document::SimpleType]',
@@ -909,15 +903,6 @@ sub _imports {
     }
 
     return \@imports;
-}
-
-sub _include {
-    my ($self) = @_;
-    my %include;
-    for my $include (@{ $self->include }) {
-        $include{$include->name} = $include;
-    }
-    return \%include;
 }
 
 sub _simple_types {
