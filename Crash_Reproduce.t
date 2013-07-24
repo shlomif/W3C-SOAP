@@ -515,12 +515,6 @@ has anon_complex_type_count => (
     default => -1,
     handles => { complex_type_count => 'inc' },
 );
-has elements => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document::Element]',
-    builder   => '_elements',
-    lazy_build => 1,
-);
 has ns_name => (
     is        => 'rw',
     isa       => 'Str',
@@ -608,35 +602,7 @@ sub _simple_type {
 }
 
 sub _complex_types {
-    my ($self) = @_;
-    my @complex_types;
-    my @nodes = $self->xpc->findnodes('/*/xsd:complexType');
-
-    for my $node (@nodes) {
-        # get all top level complex types
-        push @complex_types, My::W3C::SOAP::XSD::Document::ComplexType->new(
-            document => $self,
-            node     => $node,
-        );
-    }
-
-    # now itterate over all document level elements and elements of complex types
-    my @elements = ( @{ $self->elements }, map {@{ $_->sequence }} @complex_types );
-
-    while ( my $element = shift @elements ) {
-        # Get the elements first sub complex type (if any)
-        my ($node) = $self->xpc->findnodes('xsd:complexType', $element->node);
-        next unless $node;
-
-        push @complex_types, My::W3C::SOAP::XSD::Document::ComplexType->new(
-            parent_node => $element,
-            document    => $self,
-            node        => $node,
-        );
-        push @elements, @{ $complex_types[-1]->sequence };
-    }
-
-    return \@complex_types;
+    return [];
 }
 
 sub _complex_type {
@@ -655,21 +621,6 @@ sub _complex_type {
     }
 
     return \%complex_type;
-}
-
-sub _elements {
-    my ($self) = @_;
-    my @elements;
-    my @nodes = $self->xpc->findnodes('/*/xsd:element');
-
-    for my $node (@nodes) {
-        push @elements, My::W3C::SOAP::XSD::Document::Element->new(
-            document => $self,
-            node   => $node,
-        );
-    }
-
-    return \@elements;
 }
 
 sub _ns_name {
