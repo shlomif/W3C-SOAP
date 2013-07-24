@@ -814,13 +814,6 @@ has messages => (
     builder    => '_messages',
     lazy_build => 1,
 );
-has message => (
-    is         => 'rw',
-    isa        => 'HashRef[My::W3C::SOAP::WSDL::Document::Message]',
-    builder    => '_message',
-    lazy_build => 1,
-    weak_ref   => 1,
-);
 has schemas => (
     is         => 'rw',
     isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document]',
@@ -841,16 +834,6 @@ sub _messages {
     }
 
     return \@messages;
-}
-
-sub _message {
-    my ($self) = @_;
-    my %message;
-    for my $message ( @{ $self->messages }) {
-        $message{$message->name} = $message;
-    }
-
-    return \%message;
 }
 
 sub _schemas {
