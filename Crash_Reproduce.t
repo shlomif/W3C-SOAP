@@ -27,12 +27,6 @@ has xpc => (
     builder    => '_xpc',
     lazy_build => 1,
 );
-has target_namespace => (
-    is         => 'rw',
-    isa        => 'Str',
-    builder    => '_target_namespace',
-    lazy_build => 1,
-);
 
 sub _xpc {
     my ($self) = @_;
@@ -43,16 +37,6 @@ sub _xpc {
     $xpc->registerNs(soap => 'http://schemas.xmlsoap.org/wsdl/soap/');
 
     return $xpc;
-}
-
-my $anon = 0;
-sub _target_namespace {
-    my ($self) = @_;
-    my $ns  = $self->xml->getDocumentElement->getAttribute('targetNamespace');
-    my $xpc = $self->xpc;
-    $xpc->registerNs(ns => $ns) if $ns;
-
-    return $ns;
 }
 
 package My::W3C::SOAP::Document::Node;
@@ -220,7 +204,6 @@ sub _schemas {
                 string => $node->toString,
             ),
         );
-        $schemas[-1]->target_namespace;
     }
 
     return \@schemas;
@@ -250,7 +233,6 @@ my $parser = My::W3C::SOAP::WSDL::Parser->new(
 );
 
 ok $parser, "Got a parser object";
-is $parser->document->target_namespace, 'http://eg.schema.org/v1', "Get target namespace";
 ok scalar( @{ $parser->document->messages }      ), "Got some messages";
 ok scalar( @{ $parser->document->schemas }  ), "Got some schemas";
 
