@@ -154,21 +154,7 @@ use Moose;
 
 extends 'My::W3C::SOAP::Document';
 
-
-has messages => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::Document::Node]',
-    builder    => '_messages',
-    lazy_build => 1,
-);
-has schemas => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::XSD::Document]',
-    builder    => '_schemas',
-    lazy_build => 1,
-);
-
-sub _messages {
+sub messages {
     my ($self) = @_;
     my @messages;
     my @nodes = $self->xpc->findnodes('//wsdl:message');
@@ -183,7 +169,7 @@ sub _messages {
     return \@messages;
 }
 
-sub _schemas {
+sub schemas {
     my ($self) = @_;
     my @schemas;
     my @nodes = $self->xpc->findnodes('//wsdl:types/*');
