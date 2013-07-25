@@ -209,32 +209,20 @@ sub _schemas {
     return \@schemas;
 }
 
-package My::W3C::SOAP::WSDL::Parser;
-
-use Moose;
-
-has 'document' => (
-    is       => 'rw',
-    isa      => 'My::W3C::SOAP::WSDL::Document',
-    required => 1,
-);
-
 package main;
 
 use Test::More;
 
 # create the parser object
-my $parser = My::W3C::SOAP::WSDL::Parser->new(
-    document => My::W3C::SOAP::WSDL::Document->new(
-        xml => XML::LibXML->load_xml(
-            location      => 't/eg.wsdl',
-        ),
-    )
+my $doc = My::W3C::SOAP::WSDL::Document->new(
+    xml => XML::LibXML->load_xml(
+        location      => 't/eg.wsdl',
+    ),
 );
 
-ok $parser, "Got a parser object";
-ok scalar( @{ $parser->document->messages }      ), "Got some messages";
-ok scalar( @{ $parser->document->schemas }  ), "Got some schemas";
+ok $doc, "Got a parser object";
+ok scalar( @{ $doc->messages }      ), "Got some messages";
+ok scalar( @{ $doc->schemas }  ), "Got some schemas";
 
 done_testing();
 exit;
