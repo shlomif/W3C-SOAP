@@ -16,14 +16,6 @@ package My::W3C::SOAP::Document;
 use Moose;
 use XML::LibXML;
 
-has string => (
-    is         => 'rw',
-    isa        => 'Str',
-);
-has location => (
-    is         => 'rw',
-    isa        => 'Str',
-);
 has xml => (
     is       => 'ro',
     isa      => 'XML::LibXML::Document',
@@ -41,23 +33,6 @@ has target_namespace => (
     builder    => '_target_namespace',
     lazy_build => 1,
 );
-
-around BUILDARGS => sub {
-    my ($orig, $class, @args) = @_;
-    my $args
-        = !@args     ? {}
-        : @args == 1 ? $args[0]
-        :              {@args};
-
-    if ( $args->{string} ) {
-        $args->{xml} = XML::LibXML->load_xml(string => $args->{string});
-    }
-    elsif ( $args->{location} ) {
-        $args->{xml} = XML::LibXML->load_xml(location => $args->{location});
-    }
-
-    return $class->$orig($args);
-};
 
 sub _xpc {
     my ($self) = @_;
@@ -241,9 +216,10 @@ sub _schemas {
         }
 
         push @schemas, My::W3C::SOAP::XSD::Document->new(
-            string        => $node->toString,
+            xml => XML::LibXML->load_xml(
+                string => $node->toString,
+            ),
         );
-        $schemas[-1]->location($self->location);
         $schemas[-1]->target_namespace;
     }
 
@@ -254,34 +230,29 @@ package My::W3C::SOAP::WSDL::Parser;
 
 use Moose;
 
+has 'document_args' => (
+    is => 'ro',
+    isa => 'ArrayRef',
+    required => 1,
+);
 has 'document' => (
     is       => 'rw',
     isa      => 'My::W3C::SOAP::WSDL::Document',
-    required => 1,
-);
-has location => (
-    is  => 'rw',
-    isa => 'Str',
+    lazy_build => 1,
+    builder    => '_build_document',
 );
 
-around BUILDARGS => sub {
-    my ($orig, $class, @args) = @_;
-    my $args
-        = !@args     ? {}
-        : @args == 1 ? $args[0]
-        :              {@args};
+sub _build_document
+{
+    my ($self) = @_;
 
-    my $type = $class;
+    my $type = ref($self);
     $type =~ s/Parser/Document/;
 
-    for my $arg ( keys %$args ) {
-        if ( $arg eq 'location' || $arg eq 'string' ) {
-            $args->{document} = $type->new($args);
-        }
-    }
-
-    return $class->$orig($args);
-};
+    return $type->new( xml => XML::LibXML->load_xml(
+            @{$self->document_args}
+    ));
+}
 
 package main;
 
@@ -289,7 +260,7 @@ use Test::More;
 
 # create the parser object
 my $parser = My::W3C::SOAP::WSDL::Parser->new(
-    location      => 't/eg.wsdl',
+    document_args => [ location      => 't/eg.wsdl', ],
 );
 
 ok $parser, "Got a parser object";
