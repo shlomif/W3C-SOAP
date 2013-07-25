@@ -77,8 +77,6 @@ sub _target_namespace {
     my $xpc = $self->xpc;
     $xpc->registerNs(ns => $ns) if $ns;
 
-    $ns ||= $self->location || 'NsAnon' . $anon++;
-
     return $ns;
 }
 
