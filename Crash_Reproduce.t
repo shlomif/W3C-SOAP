@@ -230,29 +230,11 @@ package My::W3C::SOAP::WSDL::Parser;
 
 use Moose;
 
-has 'document_args' => (
-    is => 'ro',
-    isa => 'ArrayRef',
-    required => 1,
-);
 has 'document' => (
     is       => 'rw',
     isa      => 'My::W3C::SOAP::WSDL::Document',
-    lazy_build => 1,
-    builder    => '_build_document',
+    required => 1,
 );
-
-sub _build_document
-{
-    my ($self) = @_;
-
-    my $type = ref($self);
-    $type =~ s/Parser/Document/;
-
-    return $type->new( xml => XML::LibXML->load_xml(
-            @{$self->document_args}
-    ));
-}
 
 package main;
 
@@ -260,7 +242,11 @@ use Test::More;
 
 # create the parser object
 my $parser = My::W3C::SOAP::WSDL::Parser->new(
-    document_args => [ location      => 't/eg.wsdl', ],
+    document => My::W3C::SOAP::WSDL::Document->new(
+        xml => XML::LibXML->load_xml(
+            location      => 't/eg.wsdl',
+        ),
+    )
 );
 
 ok $parser, "Got a parser object";
