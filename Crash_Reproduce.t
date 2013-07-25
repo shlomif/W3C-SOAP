@@ -5,6 +5,28 @@ use warnings;
 
 use Carp ();
 
+package MyBase;
+
+sub new
+{
+    my $class = shift;
+
+    my $self = bless {}, $class;
+
+    $self->_init(@_);
+
+    return $self;
+}
+
+sub _init
+{
+    my ($self, @vals) = @_;
+
+    %{$self} = @vals;
+
+    return;
+}
+
 package My::W3C::SOAP::Document;
 
 # Created on: 2012-05-27 19:26:43
@@ -13,30 +35,26 @@ package My::W3C::SOAP::Document;
 # $Revision$, $HeadURL$, $Date$
 # $Revision$, $Source$, $Date$
 
-use Moose;
+use vars qw(@ISA);
+@ISA=('MyBase');
 use XML::LibXML;
 
-has xml => (
-    is       => 'ro',
-    isa      => 'XML::LibXML::Document',
-    required => 1,
-);
-has xpc => (
-    is         => 'ro',
-    isa        => 'XML::LibXML::XPathContext',
-    builder    => '_xpc',
-    lazy_build => 1,
-);
+sub xml { return shift->{xml} };
 
-sub _xpc {
-    my ($self) = @_;
-    my $xpc = XML::LibXML::XPathContext->new($self->xml);
-    $xpc->registerNs(xs   => 'http://www.w3.org/2001/XMLSchema');
-    $xpc->registerNs(xsd  => 'http://www.w3.org/2001/XMLSchema');
-    $xpc->registerNs(wsdl => 'http://schemas.xmlsoap.org/wsdl/');
-    $xpc->registerNs(soap => 'http://schemas.xmlsoap.org/wsdl/soap/');
+sub xpc
+{
+    my $self = shift;
 
-    return $xpc;
+    if (!$self->{xpc})
+    {
+        my $xpc = XML::LibXML::XPathContext->new($self->xml);
+        $xpc->registerNs(xs   => 'http://www.w3.org/2001/XMLSchema');
+        $xpc->registerNs(xsd  => 'http://www.w3.org/2001/XMLSchema');
+        $xpc->registerNs(wsdl => 'http://schemas.xmlsoap.org/wsdl/');
+        $xpc->registerNs(soap => 'http://schemas.xmlsoap.org/wsdl/soap/');
+        $self->{xpc} = $xpc;
+    }
+    return $self->{xpc};
 }
 
 package My::W3C::SOAP::Document::Node;
@@ -47,32 +65,45 @@ package My::W3C::SOAP::Document::Node;
 # $Revision$, $HeadURL$, $Date$
 # $Revision$, $Source$, $Date$
 
-use Moose;
+use vars qw(@ISA);
+@ISA = ('MyBase');
 
-has node => (
-    is       => 'rw',
-    isa      => 'XML::LibXML::Node',
-    required => 1,
-);
-has document => (
-    is         => 'rw',
-    isa        => 'My::W3C::SOAP::Document',
-    required   => 1,
-    weak_ref   => 1,
-    handles    => {
-        xpc => 'xpc',
-    },
-);
-has name => (
-    is         => 'rw',
-    isa        => 'Maybe[Str]',
-    builder    => '_name',
-    lazy_build => 1,
-);
+sub node
+{
+    my $self = shift;
 
-sub _name {
-    my ($self) = shift;
-    return $self->node->getAttribute('name');
+    if (@_)
+    {
+        $self->{node} = shift;
+    }
+
+    return $self->{node};
+}
+
+sub document
+{
+    my $self = shift;
+
+    if (@_)
+    {
+        $self->{document} = shift;
+    }
+
+    return $self->{document};
+}
+
+sub xpc { return shift->document->xpc; }
+
+sub name
+{
+    my $self = shift;
+
+    if (! exists($self->{name}))
+    {
+        $self->{name} = $self->node->getAttribute('name');
+    }
+
+    return $self->{name};
 }
 
 package My::W3C::SOAP::XSD::Document;
@@ -83,30 +114,43 @@ package My::W3C::SOAP::XSD::Document;
 # $Revision$, $HeadURL$, $Date$
 # $Revision$, $Source$, $Date$
 
-use Moose;
+use vars qw(@ISA);
+@ISA=('My::W3C::SOAP::Document');
 
-extends 'My::W3C::SOAP::Document';
+sub simple_types
+{
+    my $self = shift;
 
+    if (! $self->{simple_types})
+    {
+        $self->{simple_types} = $self->_simple_types;
+    }
 
-has simple_types => (
-    is         => 'rw',
-    isa        => 'ArrayRef[My::W3C::SOAP::Document::Node]',
-    builder    => '_simple_types',
-    lazy_build => 1,
-);
-has simple_type => (
-    is         => 'rw',
-    isa        => 'HashRef[My::W3C::SOAP::Document::Node]',
-    builder    => '_simple_type',
-    lazy_build => 0,
-);
-has anon_simple_type_count => (
-    is      => 'ro',
-    isa     => 'Int',
-    traits  => [qw/Counter/],
-    default => -1,
-    handles => { simple_type_count => 'inc' },
-);
+    return $self->{simple_types};
+}
+
+sub simple_type
+{
+    my $self = shift;
+
+    if (! $self->{simple_type})
+    {
+        $self->{simple_type} = $self->_simple_type;
+    }
+
+    return $self->{simple_type};
+}
+
+sub simple_type_count
+{
+    my $self = shift;
+
+    if (!exists($self->{simple_type_count}))
+    {
+        $self->{simple_type_count} = -1;
+    }
+    return ++$self->{simple_type_count};
+}
 
 sub _simple_types {
     my ($self) = @_;
@@ -144,15 +188,8 @@ sub _simple_type {
 
 package My::W3C::SOAP::WSDL::Document;
 
-# Created on: 2012-05-27 18:57:29
-# Create by:  Ivan Wills
-# $Id$
-# $Revision$, $HeadURL$, $Date$
-# $Revision$, $Source$, $Date$
-
-use Moose;
-
-extends 'My::W3C::SOAP::Document';
+use vars qw(@ISA);
+@ISA = ('My::W3C::SOAP::Document');
 
 sub messages {
     my ($self) = @_;
