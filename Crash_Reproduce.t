@@ -117,6 +117,17 @@ package My::W3C::SOAP::XSD::Document;
 use vars qw(@ISA);
 @ISA=('My::W3C::SOAP::Document');
 
+sub _init
+{
+    my $self = shift;
+
+    $self->SUPER::_init(@_);
+
+    $self->simple_type();
+
+    return;
+}
+
 sub simple_types
 {
     my $self = shift;

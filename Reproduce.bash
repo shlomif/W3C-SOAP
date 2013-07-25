@@ -1,2 +1,2 @@
 #!/bin/bash
-perl -Mblib Crash_Reproduce.t
+exec perl -Mblib Crash_Reproduce.t
