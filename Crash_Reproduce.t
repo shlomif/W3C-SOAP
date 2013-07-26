@@ -150,9 +150,9 @@ package My::W3C::SOAP::WSDL::Document;
 # $Revision$, $HeadURL$, $Date$
 # $Revision$, $Source$, $Date$
 
-use Moose;
+use vars qw(@ISA);
 
-extends 'My::W3C::SOAP::Document';
+@ISA=('My::W3C::SOAP::Document');
 
 sub messages {
     my ($self) = @_;
