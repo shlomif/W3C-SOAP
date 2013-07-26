@@ -100,13 +100,17 @@ has simple_type => (
     builder    => '_simple_type',
     lazy_build => 0,
 );
-has anon_simple_type_count => (
-    is      => 'ro',
-    isa     => 'Int',
-    traits  => [qw/Counter/],
-    default => -1,
-    handles => { simple_type_count => 'inc' },
-);
+
+sub simple_type_count
+{
+    my ($self) = @_;
+
+    if (!exists($self->{anon_simple_type_count})) {
+        $self->{anon_simple_type_count} = -1;
+    }
+
+    return ++$self->{anon_simple_type_count};
+}
 
 sub _simple_types {
     my ($self) = @_;
