@@ -94,12 +94,15 @@ has simple_types => (
     builder    => '_simple_types',
     lazy_build => 1,
 );
-has simple_type => (
-    is         => 'rw',
-    isa        => 'HashRef[My::W3C::SOAP::Document::Node]',
-    builder    => '_simple_type',
-    lazy_build => 0,
-);
+
+sub simple_type {
+    my ($self) = shift;
+
+    if (!exists($self->{simple_type})) {
+        $self->{simple_type} = $self->_simple_type;
+    }
+    return $self->{simple_type};
+}
 
 sub simple_type_count
 {
